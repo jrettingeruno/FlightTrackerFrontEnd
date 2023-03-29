@@ -1,0 +1,53 @@
+<div class="form">
+    <mat-form-field class="name">
+        <mat-label>Name of the No Fly Zone</mat-label>
+        <input matInput>
+    </mat-form-field>
+    <div class="wrapper">
+        <div class="one">
+            <mat-form-field class="long-input" [(ngModel)]="longitudeW" (change)="longitudeWest($event)" name="longitudeW">
+                <mat-label>Westernmost Longitude in Degrees</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="two">
+            <mat-form-field class="long-input">
+                <mat-label>Southernmost Latitude in Degrees</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="three">
+            <mat-form-field class="long-input">
+                <mat-label>Easternmost Longitude in Degrees</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="four">
+            <mat-form-field class="long-input">
+                <mat-label>Northernmost Latitude in Degrees</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="five">
+            <mat-form-field>
+                <mat-label>Rotation in Degrees</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="six">
+            <mat-form-field>
+                <mat-label>Maximum Altitude</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="seven">
+            <mat-form-field>
+                <mat-label>Minimum Altitude</mat-label>
+                <input type="number" matInput>
+            </mat-form-field>
+        </div>
+        <div class="eight">
+            <button mat-raised-button [disabled]="submitDisabled"  color="primary">Submit</button>
+        </div>
+    </div>
+</div>

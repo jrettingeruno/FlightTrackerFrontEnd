@@ -1,9 +1,13 @@
-<div class="wrapper mat-elevation-z8">
-    <div class="one">One</div>
-    <div class="two">Two</div>
-    <div class="three">Three</div>
-    <div class="four">Four</div>
-    <div class="five">Five</div>
-    <div class="six">Six</div>
-  </div>
-  
+<div class="main mat-elevation-z8">
+  <mat-tab-group>
+    <mat-tab label="Rectangle">
+      <app-rectangle-no-fly-zone></app-rectangle-no-fly-zone>
+    </mat-tab>
+    <mat-tab label="Ellipsoid">
+      <app-ellipsoid-no-fly-zone></app-ellipsoid-no-fly-zone>
+    </mat-tab>
+    <mat-tab label="Custom Polygon">
+      <app-custom-polygon-no-fly-zone></app-custom-polygon-no-fly-zone>
+    </mat-tab>
+  </mat-tab-group>
+</div>

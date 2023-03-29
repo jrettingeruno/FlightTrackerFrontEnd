@@ -16,26 +16,27 @@ plotPoints(div:string){
     this.viewer = new Cesium.Viewer(div);
     this.viewer.infoBox.frame.removeAttribute("sandbox");
     this.viewer.infoBox.frame.src = "about:blank";
+    this.viewer.scene.requestRenderMode = true;
     this.viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(-75.59777, 40.03883),
+      position: Cesium.Cartesian3.fromDegrees(-100, 41.5),
       point: {
         color: Cesium.Color.RED,
         pixelSize: 16,
       },
     });
-    this.viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(-80.5, 35.14),
-      point: {
-        color: Cesium.Color.BLUE,
-        pixelSize: 16,
-      },
-    });
-    this.viewer.entities.add({
-      position: Cesium.Cartesian3.fromDegrees(-80.12, 25.46),
-      point: {
-        color: Cesium.Color.YELLOW,
-        pixelSize: 16,
-      },
-    });
+    // this.viewer.entities.add({
+    //   position: Cesium.Cartesian3.fromDegrees(-80.5, 35.14),
+    //   point: {
+    //     color: Cesium.Color.BLUE,
+    //     pixelSize: 16,
+    //   },
+    // });
+    // this.viewer.entities.add({
+    //   position: Cesium.Cartesian3.fromDegrees(-80.12, 25.46),
+    //   point: {
+    //     color: Cesium.Color.YELLOW,
+    //     pixelSize: 16,
+    //   },
+    // });
   }
 }
