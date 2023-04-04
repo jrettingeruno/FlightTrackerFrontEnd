@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { Flight } from 'src/app/objects/flight/flight';
 
@@ -16,7 +17,12 @@ export class FlightSearchComponent implements OnInit, OnChanges {
 
   filteredFlightList?: Flight[];
 
+  constructor(private httpClient: HttpClient) {}
+
   ngOnInit(): void {
+    this.httpClient.get<string>('http://34.198.166.4/hello_world').subscribe( data  => {
+      console.log(data);
+    })
     this.filteredFlightList = this.flightList;
     console.log(this.flightList);
   }

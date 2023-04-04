@@ -22,6 +22,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RectangleNoFlyZoneComponent } from './no-fly-zone-types/rectangle-no-fly-zone/rectangle-no-fly-zone/rectangle-no-fly-zone.component';
 import { EllipsoidNoFlyZoneComponent } from './no-fly-zone-types/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone.component';
 import { CustomPolygonNoFlyZoneComponent } from './no-fly-zone-types/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone.component'
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,7 @@ import { CustomPolygonNoFlyZoneComponent } from './no-fly-zone-types/custom-poly
     FlightDetailsComponent,
     RectangleNoFlyZoneComponent,
     EllipsoidNoFlyZoneComponent,
-    CustomPolygonNoFlyZoneComponent
+    CustomPolygonNoFlyZoneComponent,
   ],
   imports: [
     BrowserModule,
@@ -48,7 +49,8 @@ import { CustomPolygonNoFlyZoneComponent } from './no-fly-zone-types/custom-poly
     MatDividerModule,
     MatInputModule,
     FormsModule,
-    MatTabsModule
+    MatTabsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
