@@ -16,7 +16,7 @@ plotPoints(div:string){
     this.viewer = new Cesium.Viewer(div);
     this.viewer.infoBox.frame.removeAttribute("sandbox");
     this.viewer.infoBox.frame.src = "about:blank";
-    this.viewer.scene.requestRenderMode = true;
+    this.viewer.scene.requestRenderMode = false;
     this.viewer.entities.add({
       position: Cesium.Cartesian3.fromDegrees(-100, 41.5),
       point: {
