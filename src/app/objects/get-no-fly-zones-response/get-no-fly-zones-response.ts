@@ -4,7 +4,7 @@ import { RectangleNoFly } from "../rectangle-no-fly/rectangle-no-fly";
 
 export class GetNoFlyZonesResponse {
 
-    private _ellipsoidNoFlyZones: EllipsoidNoFly[];
+    public _ellipsoidNoFlyZones: EllipsoidNoFly[];
     private _rectangleNoFlyZones: RectangleNoFly[];
     private _polygonNoFlyZones: PolygonNoFly[];
     
@@ -13,7 +13,7 @@ export class GetNoFlyZonesResponse {
     public get ellipsoidNoFlyZones(): EllipsoidNoFly[] {
         return this._ellipsoidNoFlyZones;
     }
-    
+
     public set ellipsoidNoFlyZones(value: EllipsoidNoFly[]) {
         this._ellipsoidNoFlyZones = value;
     }
