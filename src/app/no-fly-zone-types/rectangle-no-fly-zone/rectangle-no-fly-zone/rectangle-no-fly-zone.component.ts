@@ -21,7 +21,7 @@ export class RectangleNoFlyZoneComponent {
   northLatDegree: number;
   rotationDegree: number;
   maxAltitude: number;
-  minAltitude: number
+  minAltitude: number;
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -36,10 +36,10 @@ export class RectangleNoFlyZoneComponent {
     })
 };
 
-  constructor( 
+  constructor(
   private dialog: MatDialog,
   private httpClient: HttpClient) {}
-  
+
   changeName(event: Event): void {
     this.rectangleNoFly.name = this.name;
     this.buttonDisabled = this.checkForCompleteNoFlyZoneObject()
