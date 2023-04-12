@@ -1,11 +1,11 @@
 export class RectangleNoFly {
 
     name: string;
-    westLongDegree: string;
-    eastLongDegree: string;
-    southLatDegree: string;
-    northLatDegree: string;
-    rotationDegree: string;
+    westLongDegree: number;
+    eastLongDegree: number;
+    southLatDegree: number;
+    northLatDegree: number;
+    rotationDegree: number;
     maxAltitude: number;
     minAltitude: number;
 }

@@ -15,8 +15,8 @@ export class EllipsoidNoFlyZoneComponent implements OnInit, OnChanges{
   buttonDisabled = true;
 
   name: string = '';
-  longitude = '';
-  latitude = '';
+  longitude: number;
+  latitude : number;
   altitude: number;
   longitudeRadius: number;
   latitudeRadius: number;

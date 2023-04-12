@@ -1,10 +1,51 @@
-import { Component } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { GetNoFlyZonesResponse } from 'src/app/objects/get-no-fly-zones-response/get-no-fly-zones-response';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+      'key': 'x-api-key',
+      'value': 'NNctr6Tjrw9794gFXf3fi6zWBZ78j6Gv3UCb3y0x',
+
+    })
+  };
+
+  constructor(private httpClient: HttpClient) { }
+
+  getNoFlyZoneRespone: GetNoFlyZonesResponse;
+
+  ngOnInit() {
+    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+      this.getNoFlyZoneRespone = data;
+
+      console.log('ELLIPSOID NO FLY ZONES')
+      for (const ellipsoidNoFly of this.getNoFlyZoneRespone.ellipsoidNoFlyZones) {
+        console.log(ellipsoidNoFly)
+      }
+
+      console.log('RECTANGLE NO FLY ZONE')
+      for (const rectangleNoFly of this.getNoFlyZoneRespone.rectangleNoFlyZones) {
+        console.log(rectangleNoFly)
+      }
+
+      console.log('POLYGON NO FLY ZONE')
+      for (const polygonNoFly of this.getNoFlyZoneRespone.polygonNoFlyZones) {
+        console.log(polygonNoFly)
+      }
+
+    })
+  }
 
 }

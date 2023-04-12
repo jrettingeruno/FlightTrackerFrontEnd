@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 declare let Cesium: any;
@@ -10,9 +11,13 @@ Cesium.Ion.defaultAccessToken =
 })
 export class CesiumService {
 
-  constructor() { }
+  constructor(private httpClient: HttpClient) { }
   private viewer: any;
 plotPoints(div:string){
+
+  
+
+
     this.viewer = new Cesium.Viewer(div);
     this.viewer.infoBox.frame.removeAttribute("sandbox");
     this.viewer.infoBox.frame.src = "about:blank";

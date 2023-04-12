@@ -1,8 +1,8 @@
 export class EllipsoidNoFly {
 
     name: string;
-    longitude: string;
-    latitude: string;
+    longitude: number;
+    latitude: number;
     altitude: number;
     longRadius: number;
     latRadius: number;
