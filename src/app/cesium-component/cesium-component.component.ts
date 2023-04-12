@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { CesiumService } from '../cesium.service';
+import { SocketService } from '../socket.service';
 
 @Component({
   selector: 'app-cesium-component',
@@ -14,7 +15,8 @@ export class CesiumComponentComponent implements OnInit {
 
   constructor(
     private cesium: CesiumService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private socket: SocketService
   ) { }
 
   ngOnInit(): void {
@@ -23,5 +25,6 @@ export class CesiumComponentComponent implements OnInit {
       console.log(this.id);
     })
     this.cesium.plotPoints("cesium");
+    this.socket.connect(this.cesium.flyToPoint)
   }
 }

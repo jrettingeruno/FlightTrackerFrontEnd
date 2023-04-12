@@ -39,4 +39,27 @@ plotPoints(div:string){
     //   },
     // });
   }
+
+flyToPoint(div:string, longitude:number, latitude:number, altitude:number) {
+  this.viewer = new Cesium.Viewer(div);
+    this.viewer.infoBox.frame.removeAttribute("sandbox");
+    this.viewer.infoBox.frame.src = "about:blank";
+    this.viewer.scene.requestRenderMode = false;
+    
+    this.viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
+      point: {
+        color: Cesium.Color.RED,
+        pixelSize: 16,
+      },
+    });
+
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
+      orientation: {
+          heading: Cesium.Math.toRadians(0.0),
+          pitch: Cesium.Math.toRadians(0.0),
+      }
+  });
+}
 }
