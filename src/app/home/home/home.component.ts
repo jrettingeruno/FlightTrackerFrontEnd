@@ -24,24 +24,24 @@ export class HomeComponent implements OnInit {
 
   constructor(private httpClient: HttpClient) { }
 
-  getNoFlyZoneRespone: GetNoFlyZonesResponse;
+  getNoFlyZoneResponse: GetNoFlyZonesResponse;
 
   ngOnInit() {
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
-      this.getNoFlyZoneRespone = data;
+      this.getNoFlyZoneResponse = data;
 
       console.log('ELLIPSOID NO FLY ZONES')
-      for (const ellipsoidNoFly of this.getNoFlyZoneRespone.ellipsoidNoFlyZones) {
+      for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
         console.log(ellipsoidNoFly)
       }
 
       console.log('RECTANGLE NO FLY ZONE')
-      for (const rectangleNoFly of this.getNoFlyZoneRespone.rectangleNoFlyZones) {
+      for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
         console.log(rectangleNoFly)
       }
 
       console.log('POLYGON NO FLY ZONE')
-      for (const polygonNoFly of this.getNoFlyZoneRespone.polygonNoFlyZones) {
+      for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
         console.log(polygonNoFly)
       }
 
