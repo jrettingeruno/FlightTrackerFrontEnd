@@ -23,6 +23,7 @@ import { RectangleNoFlyZoneComponent } from './no-fly-zone-types/rectangle-no-fl
 import { EllipsoidNoFlyZoneComponent } from './no-fly-zone-types/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone.component';
 import { CustomPolygonNoFlyZoneComponent } from './no-fly-zone-types/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone.component'
 import { HttpClientModule } from '@angular/common/http';
+import { CesiumTestComponent } from './cesium-test-page/cesium-test-page.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-submitted/no-fly-zone-submitted/no-fly-zone-submitted.component'
 
@@ -39,6 +40,7 @@ import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-sub
     RectangleNoFlyZoneComponent,
     EllipsoidNoFlyZoneComponent,
     CustomPolygonNoFlyZoneComponent,
+    CesiumTestComponent,
     NoFlyZoneSubmittedComponent,
   ],
   imports: [
@@ -54,7 +56,8 @@ import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-sub
     FormsModule,
     MatTabsModule,
     HttpClientModule,
-    MatDialogModule
+    MatButtonModule,
+    MatDialogModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
