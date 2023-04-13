@@ -28,9 +28,7 @@ export class CesiumService {
 
   constructor() { }
   private viewer: any;
-plotPoints(div:string){
-
-  
+  plotPoints(div: string) {
 
 
     this.viewer = new Cesium.Viewer(div);
@@ -48,8 +46,8 @@ plotPoints(div:string){
     this.rectangleNoFly.minAltitude = 100000;
 
     this.rectangleNoFly.name = 'rect';
-    this.rectangleNoFly.westLongDegree= 80;
-    this.rectangleNoFly.eastLongDegree= 90;
+    this.rectangleNoFly.westLongDegree = 80;
+    this.rectangleNoFly.eastLongDegree = 90;
     this.rectangleNoFly.southLatDegree = 30;
     this.rectangleNoFly.northLatDegree = 40;
     this.rectangleNoFly.rotationDegree = 0;
@@ -77,17 +75,17 @@ plotPoints(div:string){
 
 
 
-//console.log("Rotation: " + Number(this.rectangleNoFly.rotationDegree))
+    //console.log("Rotation: " + Number(this.rectangleNoFly.rotationDegree))
     let addedShape = this.viewer.entities.add({
-                  name: this.rectangleNoFly.name, // String name
-                  rectangle: {
-                    rotation: Cesium.Math.toRadians(Number(this.rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
-                    extrudedHeight: Number(this.rectangleNoFly.minAltitude),                  //Minimum Height
-                    height: Number(this.rectangleNoFly.maxAltitude),
-                    material: Cesium.Color.fromRandom({ alpha: 0.5 }),
-                    coordinates: Cesium.Rectangle.fromDegrees(Number(this.rectangleNoFly.westLongDegree), Number(this.rectangleNoFly.southLatDegree), Number(this.rectangleNoFly.eastLongDegree), Number(this.rectangleNoFly.northLatDegree)),
-                  },
-                });
+      name: this.rectangleNoFly.name, // String name
+      rectangle: {
+        rotation: Cesium.Math.toRadians(Number(this.rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
+        extrudedHeight: Number(this.rectangleNoFly.minAltitude),                  //Minimum Height
+        height: Number(this.rectangleNoFly.maxAltitude),
+        material: Cesium.Color.fromRandom({ alpha: 0.5 }),
+        coordinates: Cesium.Rectangle.fromDegrees(Number(this.rectangleNoFly.westLongDegree), Number(this.rectangleNoFly.southLatDegree), Number(this.rectangleNoFly.eastLongDegree), Number(this.rectangleNoFly.northLatDegree)),
+      },
+    });
     let vertPositions = []
     vertPositions.push(this.polygonNoFly.vertex1Long)
     vertPositions.push(this.polygonNoFly.vertex1Lat)
@@ -102,74 +100,74 @@ plotPoints(div:string){
     vertPositions.push(this.polygonNoFly.vertex4Lat)
     vertPositions.push(this.polygonNoFly.maxAltitude)
     addedShape = this.viewer.entities.add({
-              name: this.polygonNoFly.name, //String Name
+      name: this.polygonNoFly.name, //String Name
 
-              polygon: {
-                hierarchy: {
-                  positions: Cesium.Cartesian3.fromDegreesArrayHeights(vertPositions),
-                            //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
-                },
-                extrudedHeight: this.polygonNoFly.minAltitude, //int minimum height
-                perPositionHeight: true,
-                material: Cesium.Color.RED.withAlpha(0.5),
+      polygon: {
+        hierarchy: {
+          positions: Cesium.Cartesian3.fromDegreesArrayHeights(vertPositions),
+          //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+        },
+        extrudedHeight: this.polygonNoFly.minAltitude, //int minimum height
+        perPositionHeight: true,
+        material: Cesium.Color.RED.withAlpha(0.5),
 
-              },
-            });
+      },
+    });
 
     addedShape = this.viewer.entities.add({
-              name: this.ellipsoidNoFly.name,
-              position: Cesium.Cartesian3.fromDegrees(Number(this.ellipsoidNoFly.longitude), Number(this.ellipsoidNoFly.latitude), this.ellipsoidNoFly.altitude),
-              ellipsoid: {
-                radii: new Cesium.Cartesian3(this.ellipsoidNoFly.longRadius, this.ellipsoidNoFly.latRadius, this.ellipsoidNoFly.altRadius),
-                material: Cesium.Color.PINK.withAlpha(0.5),
-              }
-            })
- //If a enity was added the viewer will fly to it
-if (addedShape != null) {
+      name: this.ellipsoidNoFly.name,
+      position: Cesium.Cartesian3.fromDegrees(Number(this.ellipsoidNoFly.longitude), Number(this.ellipsoidNoFly.latitude), this.ellipsoidNoFly.altitude),
+      ellipsoid: {
+        radii: new Cesium.Cartesian3(this.ellipsoidNoFly.longRadius, this.ellipsoidNoFly.latRadius, this.ellipsoidNoFly.altRadius),
+        material: Cesium.Color.PINK.withAlpha(0.5),
+      }
+    })
+    //If a enity was added the viewer will fly to it
+    if (addedShape != null) {
       this.viewer.flyTo(addedShape);
     }
 
 
-/* The code in this block is for code milestone 3 to read all military bases from geojson text
-
-    const testData = JSON.parse(geojson);
-
-    let coords = testData.features;
-          let teststr
-
-          for (let i = 0; i < coords.length; i++) {
-
-            teststr = coords[i].geometry.coordinates.toString();
-            let testarr = teststr.split(',')
-
-            for(let i = 0; i < testarr.length; i++){
-              testarr[i] = parseFloat(testarr[i])
-            }
-            this.viewer.entities.add({
-              name: coords[i].properties.INSTALLATI,
-
-              polygon: {
-                hierarchy: {
-                  positions: Cesium.Cartesian3.fromDegreesArray(
-                    testarr
-                  ),
-                },
-
-                extrudedHeight: 100000,
-
-                material: Cesium.Color.RED.withAlpha(0.5),
-                outline: false,
-                outlineColor: Cesium.Color.BLACK,
-              },
-            });
-          }
-
- -----------------------------End of Block--------------------------------------*/
+    /* The code in this block is for code milestone 3 to read all military bases from geojson text
+    
+        const testData = JSON.parse(geojson);
+    
+        let coords = testData.features;
+              let teststr
+    
+              for (let i = 0; i < coords.length; i++) {
+    
+                teststr = coords[i].geometry.coordinates.toString();
+                let testarr = teststr.split(',')
+    
+                for(let i = 0; i < testarr.length; i++){
+                  testarr[i] = parseFloat(testarr[i])
+                }
+                this.viewer.entities.add({
+                  name: coords[i].properties.INSTALLATI,
+    
+                  polygon: {
+                    hierarchy: {
+                      positions: Cesium.Cartesian3.fromDegreesArray(
+                        testarr
+                      ),
+                    },
+    
+                    extrudedHeight: 100000,
+    
+                    material: Cesium.Color.RED.withAlpha(0.5),
+                    outline: false,
+                    outlineColor: Cesium.Color.BLACK,
+                  },
+                });
+              }
+    
+     -----------------------------End of Block--------------------------------------*/
 
   }
 
   flyToAndPlotPoint(div: string, longitude: number, latitude: number, altitude: number) {
-    let coords: FlightData = {latitude: latitude, longitude: longitude, altitude: altitude}
+    let coords: FlightData = { latitude: latitude, longitude: longitude, altitude: altitude }
 
     if (global_coord_array == undefined) {
       global_coord_array = []
@@ -178,7 +176,7 @@ if (addedShape != null) {
     global_coord_array.push(longitude)
     global_coord_array.push(latitude)
     global_coord_array.push(altitude)
-    
+
 
     if (global_viewer == null || global_viewer == undefined) {
       global_viewer = new Cesium.Viewer(div)
@@ -200,13 +198,13 @@ if (addedShape != null) {
 
     global_viewer.entities.add({
       name: "FlightPath",
-        polyline:{
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights(global_coord_array),
-            width: 10,
-            material: Cesium.Color.RED,
-            clampToGround: false,
-            },
-        });
+      polyline: {
+        positions: Cesium.Cartesian3.fromDegreesArrayHeights(global_coord_array),
+        width: 10,
+        material: Cesium.Color.RED,
+        clampToGround: false,
+      },
+    });
 
 
 
