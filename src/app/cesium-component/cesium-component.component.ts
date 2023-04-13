@@ -24,7 +24,7 @@ export class CesiumComponentComponent implements OnInit {
       this.id = params.get('id');
       console.log(this.id);
     })
-    this.cesium.plotPoints("cesium");
-    this.socket.connect(this.cesium.flyToPoint)
+    //this.cesium.plotPoints("cesium");
+    this.socket.connectToConsumer(this.cesium.flyToAndPlotPoint)
   }
 }

@@ -9,20 +9,35 @@ import '../polyfills'
   providedIn: 'root'
 })
 export class SocketService {
-  
+
   constructor() { }
   private stompClient: any;
 
-  connect(func:Function) {
+  connectToConsumer(func: Function) {
     const socket = new SockJS('http://localhost:9093/consumer-socket');
     this.stompClient = Stomp.Stomp.over(socket);
-    this.stompClient.connect({},  (frame:any) => {
+    this.stompClient.connect({}, (frame: any) => {
       console.log('Connected: ' + frame);
-      this.stompClient.subscribe('/topic/liveCoords', function (data:any) {
-        const values = JSON.parse(data.body).content.split(',');
-        func(values[0], values[1], values[2]);
+      this.stompClient.subscribe('/topic/liveCoords', function (data: any) {
+        console.log(data)
+        console.log(data.body)
+
+        interface flightData {
+          latitude: number;
+          longitude: number;
+          altitude: number;
+        }
+
+        let liveObj: flightData = JSON.parse(data.body).data[0].live
+        console.log(liveObj)
+        console.log("ALT: " + liveObj.altitude);
+        console.log("LAT: " + liveObj.latitude);
+        console.log("LONG: " + liveObj.longitude);
+
+        func("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude);
       })
     })
   }
+
 
 }

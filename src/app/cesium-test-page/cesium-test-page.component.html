@@ -1,0 +1,28 @@
+<div class="main">
+    <div>
+        <form class="example-form">
+            <mat-form-field class="example-full-width">
+                <mat-label>Flight ICAO</mat-label>
+                <input matInput placeholder="Ex. NE654" [(ngModel)]="search" name="search">
+            </mat-form-field>
+            <button mat-raised-button (click)="getFlightInfo()">Track Flight</button>
+            <button mat-raised-button (click)="toggleFlightsVisible()">Show/Hide Flights</button>
+            <button mat-raised-button (click)="getLiveFlightIcaos()">Refresh Live</button>
+        </form>
+    </div>
+</div>
+<mat-divider></mat-divider>
+<div class="main" [hidden]="!are_flights_visible">
+    <p>Flights with Live Data</p>
+    <div *ngFor="let flight of fligth_icao_list">
+        <div class="flight-option mat-elevation-z8">
+            <span class="flight-text">{{flight}}</span>
+            <button mat-button class="flight-select mat-elevation-z8" (click)="setFlightIcao(flight)">
+                Select
+            </button>
+        </div>
+    </div>
+</div>
+<div class="cesium">
+    <app-cesium-component></app-cesium-component>
+</div>
