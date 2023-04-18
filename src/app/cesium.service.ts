@@ -1,12 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RectangleNoFly } from './objects/rectangle-no-fly/rectangle-no-fly';
 import { PolygonNoFly } from './objects/polygon-no-fly/polygon-no-fly';
 import { EllipsoidNoFly } from './objects/ellipsoid-no-fly/ellipsoid-no-fly';
-import { Component, OnInit } from '@angular/core';
-import { GetNoFlyZonesResponse } from 'src/app/objects/get-no-fly-zones-response/get-no-fly-zones-response';
-
-
 
 declare let Cesium: any;
 
@@ -16,7 +12,6 @@ Cesium.Ion.defaultAccessToken =
 @Injectable({
   providedIn: 'root'
 })
-
 export class CesiumService {
 
   httpOptions = {
@@ -105,6 +100,8 @@ private viewer: any;
 plotPoints(div:string){
 
 
+
+
     this.viewer = new Cesium.Viewer(div);
     this.viewer.infoBox.frame.removeAttribute("sandbox");
     this.viewer.infoBox.frame.src = "about:blank";
@@ -185,61 +182,19 @@ plotPoints(div:string){
                 perPositionHeight: true,
                 material: Cesium.Color.RED.withAlpha(0.5),
 
-              },
-            });
-/*
-    addedShape = this.viewer.entities.add({
-              name: this.ellipsoidNoFly.name,
-              position: Cesium.Cartesian3.fromDegrees(Number(this.ellipsoidNoFly.longitude), Number(this.ellipsoidNoFly.latitude), this.ellipsoidNoFly.altitude),
-              ellipsoid: {
-                radii: new Cesium.Cartesian3(this.ellipsoidNoFly.longRadius, this.ellipsoidNoFly.latRadius, this.ellipsoidNoFly.altRadius),
-                material: Cesium.Color.PINK.withAlpha(0.5),
-              }
-            })
-
-    for(let i = 0; i < ellipsoidNoFly.length; i++){
-        this.viewer.entities.add({
-           name: ellipsoidNoFly[i].name,
-           position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly[i].longitude), Number(ellipsoidNoFly[i].latitude), ellipsoidNoFly[i].altitude),
-           ellipsoid: {
-             radii: new Cesium.Cartesian3(ellipsoidNoFly[i].longRadius,ellipsoidNoFly[i].latRadius, ellipsoidNoFly[i].altRadius),
-             material: Cesium.Color.RED.withAlpha(0.5),
-           }
-         });
-    }*/
-    let yep = {
-       name: "point1",
-       position: Cesium.Cartesian3.fromDegrees(-80.5, 35.14),
-       point: {
-         color: Cesium.Color.BLUE,
-         pixelSize: 16,
-       },
-     };
-     this.viewer.entities.add(yep);
-     let testShape = {
-            name: "point2",
-            position: Cesium.Cartesian3.fromDegrees(-80.6, 35.14),
-            point: {
-              color: Cesium.Color.BLUE,
-              pixelSize: 16,
-            },
-          };
-     this.viewer.entities.add(testShape);
-addedShape = this.viewer.entities.add({
-name: "Test",
-  polyline:{
-      positions: Cesium.Cartesian3.fromDegreesArray([-80.6, 35.14, -80.5, 35.14]),
-      //positions: Cesium.Cartesian3.fromDegreesArray([addedShape1.position, addedShape.position]),
-      width: 10,
-      material: Cesium.Color.RED,
-      clampToGround: true,
       },
-  });
+    });
 
- //If a enity was added the viewer will fly to it
-
-
-if (addedShape != null) {
+    addedShape = this.viewer.entities.add({
+      name: this.ellipsoidNoFly.name,
+      position: Cesium.Cartesian3.fromDegrees(Number(this.ellipsoidNoFly.longitude), Number(this.ellipsoidNoFly.latitude), this.ellipsoidNoFly.altitude),
+      ellipsoid: {
+        radii: new Cesium.Cartesian3(this.ellipsoidNoFly.longRadius, this.ellipsoidNoFly.latRadius, this.ellipsoidNoFly.altRadius),
+        material: Cesium.Color.PINK.withAlpha(0.5),
+      }
+    })
+    //If a enity was added the viewer will fly to it
+    if (addedShape != null) {
       this.viewer.flyTo(addedShape);
     }
 
