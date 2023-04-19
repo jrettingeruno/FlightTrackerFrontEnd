@@ -8,13 +8,14 @@
             <button mat-raised-button (click)="getFlightInfo()">Track Flight</button>
             <button mat-raised-button (click)="toggleFlightsVisible()">Show/Hide Flights</button>
             <button mat-raised-button (click)="getLiveFlightIcaos()">Refresh Live</button>
+            <button mat-raised-button (click)="generateMockFlight()">Generate Mock Flight</button>
         </form>
     </div>
 </div>
 <mat-divider></mat-divider>
 <div class="main" [hidden]="!are_flights_visible">
     <p>Flights with Live Data</p>
-    <div *ngFor="let flight of fligth_icao_list">
+    <div *ngFor="let flight of flight_icao_list">
         <div class="flight-option mat-elevation-z8">
             <span class="flight-text">{{flight}}</span>
             <button mat-button class="flight-select mat-elevation-z8" (click)="setFlightIcao(flight)">

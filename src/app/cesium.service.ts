@@ -6,11 +6,12 @@ import { EllipsoidNoFly } from './objects/ellipsoid-no-fly/ellipsoid-no-fly';
 import { GetNoFlyZonesResponse } from './objects/get-no-fly-zones-response/get-no-fly-zones-response';
 
 declare let Cesium: any;
-let global_viewer: any;
-let global_coord_array: number[];
+//let global_viewer: any;
+//let global_coord_array: number[];
+//let global_coord_map: Map<string, number[]>;
 
 Cesium.Ion.defaultAccessToken =
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMTE4ZTAwNC1iYjY0LTQ2MmUtOTAzNi0wZDNhY2EyY2MzNTAiLCJpZCI6MTI4NTgxLCJpYXQiOjE2Nzg3NjAzNTB9.1UEATVrKMPSwbEh6ObHPAMs1L99KpJg_pKqMjVDqYDk";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMTE4ZTAwNC1iYjY0LTQ2MmUtOTAzNi0wZDNhY2EyY2MzNTAiLCJpZCI6MTI4NTgxLCJpYXQiOjE2Nzg3NjAzNTB9.1UEATVrKMPSwbEh6ObHPAMs1L99KpJg_pKqMjVDqYDk";
 
 @Injectable({
   providedIn: 'root'
@@ -18,109 +19,152 @@ Cesium.Ion.defaultAccessToken =
 export class CesiumService {
 
   httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
-        'key': 'x-api-key',
-        'value': 'NNctr6Tjrw9794gFXf3fi6zWBZ78j6Gv3UCb3y0x',
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Credentials': 'true',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+      'key': 'x-api-key',
+      'value': 'NNctr6Tjrw9794gFXf3fi6zWBZ78j6Gv3UCb3y0x',
 
-      })
-    };
+    })
+  };
 
   constructor(private httpClient: HttpClient) {
   }
 
+  ellipsoidNoFly: EllipsoidNoFly = new EllipsoidNoFly();
+  rectangleNoFly: RectangleNoFly = new RectangleNoFly();
+  polygonNoFly: PolygonNoFly = new PolygonNoFly();
+  getNoFlyZoneResponse: GetNoFlyZonesResponse;
+  prevFlightLabel: string;
+  global_viewer: any;
+  global_coord_map: Map<string, number[]> = new Map<string, number[]>();
 
-    ellipsoidNoFly: EllipsoidNoFly = new EllipsoidNoFly();
-    rectangleNoFly: RectangleNoFly = new RectangleNoFly();
-    polygonNoFly: PolygonNoFly = new PolygonNoFly();
-    getNoFlyZoneResponse: GetNoFlyZonesResponse;
-    private viewer: any;
+  public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string): void {
+    console.log("INSIDE NO FLY ZONES")
+    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+      this.getNoFlyZoneResponse = data;
 
-  public addNoFlyZones(div: string, longitude: number, latitude: number, altitude: number): void{
-    console.log("INSIDE NO FLY ZONES FUINCAJCOA")
-      this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
-        this.getNoFlyZoneResponse = data;
+      console.log("Response:" + this.getNoFlyZoneResponse);
+      // Sets up cesium viewer
+      this.setUpViewer(div);
 
-        console.log("Response:" + this.getNoFlyZoneResponse);
-        this.flyToAndPlotPoint(div, longitude, latitude, altitude);  
-      })
+      // Load all no custom fly zones from database into cesium
+      this.loadNoFlyZones();
 
-    
+      // Plots new flight point
+      this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel);
+    })
+
   }
 
-  flyToAndPlotPoint(div: string, longitude: number, latitude: number, altitude: number) {
- 
-    if (global_coord_array == undefined) {
-      global_coord_array = []
+  setUpViewer(div: string): void {
+    // Setting up viewer. Checks to make sure it doesn't exist before creating a new one
+    if (this.global_viewer == null || this.global_viewer == undefined) {
+      this.global_viewer = new Cesium.Viewer(div)
+
+      this.global_viewer.infoBox.frame.removeAttribute("sandbox");
+      this.global_viewer.infoBox.frame.src = "about:blank";
+      this.global_viewer.scene.requestRenderMode = false;
     }
+  }
 
-    global_coord_array.push(longitude)
-    global_coord_array.push(latitude)
-    global_coord_array.push(altitude)
-
-
-    if (global_viewer == null || global_viewer == undefined) {
-      global_viewer = new Cesium.Viewer(div)
-    }
-    global_viewer.infoBox.frame.removeAttribute("sandbox");
-    global_viewer.infoBox.frame.src = "about:blank";
-    global_viewer.scene.requestRenderMode = false;
-
+  loadNoFlyZones(): void {
     console.log('ELLIPSOID NO FLY ZONES')
-        for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
+    for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
 
-          global_viewer.entities.add({
-                     name: ellipsoidNoFly.name,
-                     position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
-                     ellipsoid: {
-                       radii: new Cesium.Cartesian3(ellipsoidNoFly.longRadius,ellipsoidNoFly.latRadius, ellipsoidNoFly.altRadius),
-                       material: Cesium.Color.RED.withAlpha(0.5),
-                     }
-                   });
-          console.log(ellipsoidNoFly)
+      this.global_viewer.entities.add({
+        name: ellipsoidNoFly.name,
+        position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
+        ellipsoid: {
+          radii: new Cesium.Cartesian3(ellipsoidNoFly.longRadius, ellipsoidNoFly.latRadius, ellipsoidNoFly.altRadius),
+          material: Cesium.Color.RED.withAlpha(0.5),
         }
+      });
+      console.log(ellipsoidNoFly)
+    }
 
-        console.log('RECTANGLE NO FLY ZONE')
-        for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
-          global_viewer.entities.add({
-            name: rectangleNoFly.name, // String name
-            rectangle: {
-              rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
-              extrudedHeight: Number(rectangleNoFly.minAltitude),                  //Minimum Height
-              height: Number(rectangleNoFly.maxAltitude),
-              material: Cesium.Color.fromRandom({ alpha: 0.5 }),
-              coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
-            },
-          });
-          console.log(rectangleNoFly)
-        }
+    console.log('RECTANGLE NO FLY ZONE')
+    for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
+      this.global_viewer.entities.add({
+        name: rectangleNoFly.name, // String name
+        rectangle: {
+          rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
+          extrudedHeight: Number(rectangleNoFly.minAltitude),                  //Minimum Height
+          height: Number(rectangleNoFly.maxAltitude),
+          material: Cesium.Color.fromRandom({ alpha: 0.5 }),
+          coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
+        },
+      });
+      console.log(rectangleNoFly)
+    }
 
-        console.log('POLYGON NO FLY ZONE')
-        for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
-          global_viewer.entities.add({
-            name: polygonNoFly.name, //String Name
+    console.log('POLYGON NO FLY ZONE')
+    for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
+      this.global_viewer.entities.add({
+        name: polygonNoFly.name, //String Name
 
-            polygon: {
-              hierarchy: {
-                positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-                  polygonNoFly.vertex1Long, polygonNoFly.vertex1Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex2Long, polygonNoFly.vertex2Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex3Long, polygonNoFly.vertex3Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex4Long, polygonNoFly.vertex4Lat, polygonNoFly.maxAltitude,
-                ]),
-                          //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
-              },
-              extrudedHeight: polygonNoFly.minAltitude, //int minimum height
-              perPositionHeight: true,
-              material: Cesium.Color.RED.withAlpha(0.5),
+        polygon: {
+          hierarchy: {
+            positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+              polygonNoFly.vertex1Long, polygonNoFly.vertex1Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex2Long, polygonNoFly.vertex2Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex3Long, polygonNoFly.vertex3Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex4Long, polygonNoFly.vertex4Lat, polygonNoFly.maxAltitude,
+            ]),
+            //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+          },
+          extrudedHeight: polygonNoFly.minAltitude, //int minimum height
+          perPositionHeight: true,
+          material: Cesium.Color.RED.withAlpha(0.5),
 
-            },
-          });
-          console.log(polygonNoFly)
-        }
+        },
+      });
+      console.log(polygonNoFly)
+    }
+  }
 
-    global_viewer.entities.add({
+  flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string) {
+    if (!this.global_coord_map.has(flightLabel)) {
+      this.global_coord_map.set(flightLabel, []);
+    }
+
+
+    let current_coord_arr: number[] | undefined = this.global_coord_map.get(flightLabel);
+    let prevVals: number[] | undefined;
+    let prevLong: number = 0;
+    let prevLat: number = 0;
+    let prevAlt: number = 0;
+    let location_has_changed: boolean = true;
+
+    if (current_coord_arr != undefined && current_coord_arr?.length > 0) {
+      prevVals = current_coord_arr?.slice(Math.max(current_coord_arr.length - 3, 0));
+      console.log("sliced array: " + prevVals);
+
+      if (prevVals.length == 3) {
+        prevLong = prevVals[0];
+        prevLat = prevVals[1];
+        prevAlt = prevVals[2];
+        location_has_changed = longitude != prevLong || latitude != prevLat || altitude != prevAlt;
+        console.log("location_has_changed: " + location_has_changed)
+      }
+    }
+
+
+    if (location_has_changed) {
+      if (current_coord_arr != undefined) {
+        current_coord_arr.push(longitude);
+        current_coord_arr.push(latitude);
+        current_coord_arr.push(altitude);
+      }
+    }
+
+    console.log("Coordinate Objects");
+    console.log(this.global_coord_map);
+    console.log(current_coord_arr);
+
+    // Adding a point to mark location
+    var point = this.global_viewer.entities.add({
+      name : flightLabel,
       position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
       point: {
         color: Cesium.Color.RED,
@@ -128,184 +172,31 @@ export class CesiumService {
       },
     });
 
-
-    console.log(global_coord_array)
-
-    global_viewer.entities.add({
-      name: "FlightPath",
+    // Making a line with the stored coordinates
+    this.global_viewer.entities.add({
+      name: flightLabel,
       polyline: {
-        positions: Cesium.Cartesian3.fromDegreesArrayHeights(global_coord_array),
+        positions: Cesium.Cartesian3.fromDegreesArrayHeights(current_coord_arr),
         width: 10,
         material: Cesium.Color.RED,
         clampToGround: false,
       },
     });
 
+    // If the location is new, fly to the point
+    // if (location_has_changed) {
+    //   this.global_viewer.camera.flyTo({
+    //     destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000000),
+    //     orientation: {
+    //       heading: Cesium.Math.toRadians(90.0),
+    //       pitch: Cesium.Math.toRadians(0.0)
+    //     }
+    //   });
+    // }
 
-
-    // global_viewer.camera.flyTo({
-    //   destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
-    //   orientation: {
-    //     heading: Cesium.Math.toRadians(0.0),
-    //     pitch: Cesium.Math.toRadians(0.0),
-    //   }
-    // });
+    // if (location_has_changed) {
+    //   this.global_viewer.flyTo(point);
+    // }
   }
 
-
-  
-
-// plotPoints(div:string){
-
-
-
-
-//   this.viewer = new Cesium.Viewer(div);
-//   this.viewer.infoBox.frame.removeAttribute("sandbox");
-//   this.viewer.infoBox.frame.src = "about:blank";
-//   this.viewer.entities.add({
-//     position: Cesium.Cartesian3.fromDegrees(-100, 41.5),
-//     point: {
-//       color: Cesium.Color.RED,
-//       pixelSize: 16,
-//     },
-//   });
-
-//   this.rectangleNoFly.maxAltitude = 300000;
-//   this.rectangleNoFly.minAltitude = 100000;
-
-//   this.rectangleNoFly.name = 'rect';
-//   this.rectangleNoFly.westLongDegree= 80;
-//   this.rectangleNoFly.eastLongDegree= 90;
-//   this.rectangleNoFly.southLatDegree = 30;
-//   this.rectangleNoFly.northLatDegree = 40;
-//   this.rectangleNoFly.rotationDegree = 0;
-
-//   this.polygonNoFly.name = 'poly'
-//   this.polygonNoFly.vertex1Long = 80;
-//   this.polygonNoFly.vertex1Lat = 60;
-//   this.polygonNoFly.vertex2Long = 80;
-//   this.polygonNoFly.vertex2Lat = 50;
-//   this.polygonNoFly.vertex3Long = 70;
-//   this.polygonNoFly.vertex3Lat = 50;
-//   this.polygonNoFly.vertex4Long = 75;
-//   this.polygonNoFly.vertex4Lat = 60;
-//   this.polygonNoFly.maxAltitude = 300000;
-//   this.polygonNoFly.minAltitude = 100000;
-
-//   this.ellipsoidNoFly.name = 'ellip';
-//   this.ellipsoidNoFly.longitude = 60;
-//   this.ellipsoidNoFly.latitude = 50;
-
-//   this.ellipsoidNoFly.altitude = 200000;
-//   this.ellipsoidNoFly.longRadius = 80000;
-//   this.ellipsoidNoFly.latRadius = 80000;
-//   this.ellipsoidNoFly.altRadius = 80000;
-
-
-
-// //console.log("Rotation: " + Number(this.rectangleNoFly.rotationDegree))
-//   let addedShape = this.viewer.entities.add({
-//                 name: this.rectangleNoFly.name, // String name
-//                 rectangle: {
-//                   rotation: Cesium.Math.toRadians(Number(this.rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
-//                   extrudedHeight: Number(this.rectangleNoFly.minAltitude),                  //Minimum Height
-//                   height: Number(this.rectangleNoFly.maxAltitude),
-//                   material: Cesium.Color.fromRandom({ alpha: 0.5 }),
-//                   coordinates: Cesium.Rectangle.fromDegrees(Number(this.rectangleNoFly.westLongDegree), Number(this.rectangleNoFly.southLatDegree), Number(this.rectangleNoFly.eastLongDegree), Number(this.rectangleNoFly.northLatDegree)),
-//                 },
-//               });
-//   let vertPositions = []
-//   vertPositions.push(this.polygonNoFly.vertex1Long)
-//   vertPositions.push(this.polygonNoFly.vertex1Lat)
-//   vertPositions.push(this.polygonNoFly.maxAltitude)
-//   vertPositions.push(this.polygonNoFly.vertex2Long)
-//   vertPositions.push(this.polygonNoFly.vertex2Lat)
-//   vertPositions.push(this.polygonNoFly.maxAltitude)
-//   vertPositions.push(this.polygonNoFly.vertex3Long)
-//   vertPositions.push(this.polygonNoFly.vertex3Lat)
-//   vertPositions.push(this.polygonNoFly.maxAltitude)
-//   vertPositions.push(this.polygonNoFly.vertex4Long)
-//   vertPositions.push(this.polygonNoFly.vertex4Lat)
-//   vertPositions.push(this.polygonNoFly.maxAltitude)
-//   addedShape = this.viewer.entities.add({
-//             name: this.polygonNoFly.name, //String Name
-
-//             polygon: {
-//               hierarchy: {
-//                 positions: Cesium.Cartesian3.fromDegreesArrayHeights(vertPositions),
-//                           //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
-//               },
-//               extrudedHeight: this.polygonNoFly.minAltitude, //int minimum height
-//               perPositionHeight: true,
-//               material: Cesium.Color.RED.withAlpha(0.5),
-
-//     },
-//   });
-
-//   addedShape = this.viewer.entities.add({
-//     name: this.ellipsoidNoFly.name,
-//     position: Cesium.Cartesian3.fromDegrees(Number(this.ellipsoidNoFly.longitude), Number(this.ellipsoidNoFly.latitude), this.ellipsoidNoFly.altitude),
-//     ellipsoid: {
-//       radii: new Cesium.Cartesian3(this.ellipsoidNoFly.longRadius, this.ellipsoidNoFly.latRadius, this.ellipsoidNoFly.altRadius),
-//       material: Cesium.Color.PINK.withAlpha(0.5),
-//     }
-//   })
-//   //If a enity was added the viewer will fly to it
-//   if (addedShape != null) {
-//     this.viewer.flyTo(addedShape);
-//   }
-
-
-// /* The code in this block is for code milestone 3 to read all military bases from geojson text
-
-//   const testData = JSON.parse(geojson);
-
-//   let coords = testData.features;
-//         let teststr
-
-//         for (let i = 0; i < coords.length; i++) {
-
-//           teststr = coords[i].geometry.coordinates.toString();
-//           let testarr = teststr.split(',')
-
-//           for(let i = 0; i < testarr.length; i++){
-//             testarr[i] = parseFloat(testarr[i])
-//           }
-//           this.viewer.entities.add({
-//             name: coords[i].properties.INSTALLATI,
-
-//             polygon: {
-//               hierarchy: {
-//                 positions: Cesium.Cartesian3.fromDegreesArray(
-//                   testarr
-//                 ),
-//               },
-
-//               extrudedHeight: 100000,
-
-//               material: Cesium.Color.RED.withAlpha(0.5),
-//               outline: false,
-//               outlineColor: Cesium.Color.BLACK,
-//             },
-//           });
-//         }
-
-// -----------------------------End of Block--------------------------------------*/
-
-// //     this.viewer.entities.add({
-// //       position: Cesium.Cartesian3.fromDegrees(-80.5, 35.14),
-// //       point: {
-// //         color: Cesium.Color.BLUE,
-// //         pixelSize: 16,
-// //       },
-// //     });
-//   // this.viewer.entities.add({
-//   //   position: Cesium.Cartesian3.fromDegrees(-80.12, 25.46),
-//   //   point: {
-//   //     color: Cesium.Color.YELLOW,
-//   //     pixelSize: 16,
-//   //   },
-//   // });
-// }
 }

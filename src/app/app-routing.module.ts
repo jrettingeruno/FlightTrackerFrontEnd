@@ -7,7 +7,7 @@ import { FlightSearchComponent } from './flight-search/flight-search/flight-sear
 import { FlightTrackingPageComponent } from './flight-tracking-page/flight-tracking-page/flight-tracking-page.component';
 import { HomeComponent } from './home/home/home.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found/page-not-found.component';
-import { CesiumTestComponent } from './cesium-test-page/cesium-test-page.component';
+import { CesiumShowcaseComponent } from './cesium-showcase-page/cesium-showcase-page.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -15,7 +15,7 @@ const routes: Routes = [
   { path: 'search', component: FlightSearchComponent, title: 'Flight Search' },
   { path: 'add-no-fly-zone', component: AddNoFlyZoneComponent, title: 'No Fly Zone' },
   { path: 'track/:id', component: FlightTrackingPageComponent, title: 'Flight Tracker' },
-  { path: 'test', component: CesiumTestComponent, title: 'Testing Page'},
+  { path: 'test', component: CesiumShowcaseComponent, title: 'Testing Page'},
   { path: '**', component: PageNotFoundComponent, title: 'Oops! Page not found!' }
 ];
 

@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CesiumTestComponent } from './cesium-test-page.component';
+import { CesiumShowcaseComponent } from './cesium-showcase-page.component';
 
 describe('CesiumTestComponent', () => {
-  let component: CesiumTestComponent;
-  let fixture: ComponentFixture<CesiumTestComponent>;
+  let component: CesiumShowcaseComponent;
+  let fixture: ComponentFixture<CesiumShowcaseComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CesiumTestComponent ]
+      declarations: [ CesiumShowcaseComponent ]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(CesiumTestComponent);
+    fixture = TestBed.createComponent(CesiumShowcaseComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

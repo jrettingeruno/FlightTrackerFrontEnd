@@ -11,8 +11,7 @@ import { CesiumService } from './cesium.service';
 })
 export class SocketService {
 
-  constructor(  private cesium: CesiumService
-    ) { }
+  constructor(private cesium: CesiumService) { }
   private stompClient: any;
 
   connectToConsumer() {
@@ -30,17 +29,23 @@ export class SocketService {
           altitude: number;
         }
 
-        let liveObj: flightData = JSON.parse(data.body).data[0].live
+        let jsonDataObj = JSON.parse(data.body);
+
+        let airlineName: string = jsonDataObj.airline;
+        let flightIcao: string = jsonDataObj.icao;
+        let flightLabel: string = airlineName + " " + flightIcao;
+
+
+        let liveObj: flightData = JSON.parse(jsonDataObj.live)
         console.log(liveObj)
         console.log("ALT: " + liveObj.altitude);
         console.log("LAT: " + liveObj.latitude);
         console.log("LONG: " + liveObj.longitude);
-      
-        //func("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude);
-        this.cesium.addNoFlyZones("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude);
+        console.log("Airline Name: " + airlineName);
+        console.log("Flight Icao: ", flightIcao);
+
+        this.cesium.updateFlightsAndZones("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude, flightLabel);
       })
     })
   }
-
-
 }

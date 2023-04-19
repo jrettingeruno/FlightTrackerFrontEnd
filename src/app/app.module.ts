@@ -23,9 +23,11 @@ import { RectangleNoFlyZoneComponent } from './no-fly-zone-types/rectangle-no-fl
 import { EllipsoidNoFlyZoneComponent } from './no-fly-zone-types/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone/ellipsoid-no-fly-zone.component';
 import { CustomPolygonNoFlyZoneComponent } from './no-fly-zone-types/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone/custom-polygon-no-fly-zone.component'
 import { HttpClientModule } from '@angular/common/http';
-import { CesiumTestComponent } from './cesium-test-page/cesium-test-page.component';
+import { CesiumShowcaseComponent } from './cesium-showcase-page/cesium-showcase-page.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-submitted/no-fly-zone-submitted/no-fly-zone-submitted.component'
+import { FlightGenerateDialog } from './flight-generate-dialog/flight-generate-dialog.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -40,8 +42,9 @@ import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-sub
     RectangleNoFlyZoneComponent,
     EllipsoidNoFlyZoneComponent,
     CustomPolygonNoFlyZoneComponent,
-    CesiumTestComponent,
+    CesiumShowcaseComponent,
     NoFlyZoneSubmittedComponent,
+    FlightGenerateDialog
   ],
   imports: [
     BrowserModule,
@@ -58,6 +61,8 @@ import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-sub
     HttpClientModule,
     MatButtonModule,
     MatDialogModule,
+    MatInputModule,
+    MatCheckboxModule
   ],
   providers: [],
   bootstrap: [AppComponent]
