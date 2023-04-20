@@ -31,7 +31,7 @@ export class CesiumService {
     })
   };
 
-  constructor(private httpClient: HttpClient) {
+  constructor(public httpClient: HttpClient) {
   }
 
   ellipsoidNoFly: EllipsoidNoFly = new EllipsoidNoFly();
@@ -43,24 +43,17 @@ export class CesiumService {
   global_coord_map: Map<string, number[]> = new Map<string, number[]>();
 
   public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string): void {
-    console.log("INSIDE NO FLY ZONES")
-    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
-      this.getNoFlyZoneResponse = data;
+    // Sets up cesium viewer
+    this.setUpViewer(div);
 
-      console.log("Response:" + this.getNoFlyZoneResponse);
-      // Sets up cesium viewer
-      this.setUpViewer(div);
+    // Load all no custom fly zones from database into cesium
+    this.getAndLoadNoFlyZones();
 
-      // Load all no custom fly zones from database into cesium
-      this.loadNoFlyZones();
-
-      // Plots new flight point
-      this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel);
-    })
-
+    // Plots new flight point
+    this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel);
   }
 
-  setUpViewer(div: string): void {
+  public setUpViewer(div: string): void {
     // Setting up viewer. Checks to make sure it doesn't exist before creating a new one
     if (this.global_viewer == null || this.global_viewer == undefined) {
       this.global_viewer = new Cesium.Viewer(div)
@@ -71,56 +64,62 @@ export class CesiumService {
     }
   }
 
-  loadNoFlyZones(): void {
-    console.log('ELLIPSOID NO FLY ZONES')
-    for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
+  public getAndLoadNoFlyZones(): void {
+    console.log("INSIDE NO FLY ZONES")
+    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+      this.getNoFlyZoneResponse = data;
+      console.log("Response:" + this.getNoFlyZoneResponse);
 
-      this.global_viewer.entities.add({
-        name: ellipsoidNoFly.name,
-        position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
-        ellipsoid: {
-          radii: new Cesium.Cartesian3(ellipsoidNoFly.longRadius, ellipsoidNoFly.latRadius, ellipsoidNoFly.altRadius),
-          material: Cesium.Color.RED.withAlpha(0.5),
-        }
-      });
-      console.log(ellipsoidNoFly)
-    }
+      console.log('ELLIPSOID NO FLY ZONES')
+      for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
 
-    console.log('RECTANGLE NO FLY ZONE')
-    for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
-      this.global_viewer.entities.add({
-        name: rectangleNoFly.name, // String name
-        rectangle: {
-          rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
-          extrudedHeight: Number(rectangleNoFly.minAltitude),                  //Minimum Height
-          height: Number(rectangleNoFly.maxAltitude),
-          material: Cesium.Color.fromRandom({ alpha: 0.5 }),
-          coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
-        },
-      });
-      console.log(rectangleNoFly)
-    }
+        this.global_viewer.entities.add({
+          name: ellipsoidNoFly.name,
+          position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
+          ellipsoid: {
+            radii: new Cesium.Cartesian3(ellipsoidNoFly.longRadius, ellipsoidNoFly.latRadius, ellipsoidNoFly.altRadius),
+            material: Cesium.Color.RED.withAlpha(0.5),
+          }
+        });
+        console.log(ellipsoidNoFly)
+      }
 
-    console.log('POLYGON NO FLY ZONE')
-    for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
-      this.global_viewer.entities.add({
-        name: polygonNoFly.name, //String Name
-
-        polygon: {
-          hierarchy: {
-            positions: Cesium.Cartesian3.fromDegreesArrayHeights([
-              polygonNoFly.vertex1Long, polygonNoFly.vertex1Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex2Long, polygonNoFly.vertex2Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex3Long, polygonNoFly.vertex3Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex4Long, polygonNoFly.vertex4Lat, polygonNoFly.maxAltitude,
-            ]),
-            //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+      console.log('RECTANGLE NO FLY ZONE')
+      for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
+        this.global_viewer.entities.add({
+          name: rectangleNoFly.name, // String name
+          rectangle: {
+            rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
+            extrudedHeight: Number(rectangleNoFly.minAltitude),                  //Minimum Height
+            height: Number(rectangleNoFly.maxAltitude),
+            material: Cesium.Color.fromRandom({ alpha: 0.5 }),
+            coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
           },
-          extrudedHeight: polygonNoFly.minAltitude, //int minimum height
-          perPositionHeight: true,
-          material: Cesium.Color.RED.withAlpha(0.5),
+        });
+        console.log(rectangleNoFly)
+      }
 
-        },
-      });
-      console.log(polygonNoFly)
-    }
+      console.log('POLYGON NO FLY ZONE')
+      for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
+        this.global_viewer.entities.add({
+          name: polygonNoFly.name, //String Name
+
+          polygon: {
+            hierarchy: {
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+                polygonNoFly.vertex1Long, polygonNoFly.vertex1Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex2Long, polygonNoFly.vertex2Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex3Long, polygonNoFly.vertex3Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex4Long, polygonNoFly.vertex4Lat, polygonNoFly.maxAltitude,
+              ]),
+              //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+            },
+            extrudedHeight: polygonNoFly.minAltitude, //int minimum height
+            perPositionHeight: true,
+            material: Cesium.Color.RED.withAlpha(0.5),
+
+          },
+        });
+        console.log(polygonNoFly)
+      }
+    })
   }
 
   flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string) {
@@ -164,7 +163,7 @@ export class CesiumService {
 
     // Adding a point to mark location
     var point = this.global_viewer.entities.add({
-      name : flightLabel,
+      name: flightLabel,
       position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
       point: {
         color: Cesium.Color.RED,

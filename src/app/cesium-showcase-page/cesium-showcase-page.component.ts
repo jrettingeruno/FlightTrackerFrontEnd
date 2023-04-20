@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GenerateFlightRequest } from '../objects/generate-flight/generate-flight-request';
 import { MatDialog } from '@angular/material/dialog';
 import { FlightGenerateDialog } from '../flight-generate-dialog/flight-generate-dialog.component';
+import { CesiumService } from '../cesium.service';
 
 @Component({
   selector: 'app-cesium-showcase',
@@ -36,7 +37,9 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
   };
   
 
-  constructor(private httpClient: HttpClient, public dialog: MatDialog) {}
+  constructor(private httpClient: HttpClient, 
+    public dialog: MatDialog,
+    private cesium: CesiumService) {}
 
   getLiveFlightIcaos(): void {
     this.httpClient.get<string>('http://localhost:9091/flighticao/getLive', this.httpOptions).subscribe( data => {
@@ -48,6 +51,8 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getLiveFlightIcaos();
+    this.cesium.setUpViewer("cesium");
+    this.cesium.getAndLoadNoFlyZones();
   }
 
   ngOnChanges(): void {
