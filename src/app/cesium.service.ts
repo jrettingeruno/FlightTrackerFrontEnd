@@ -10,8 +10,10 @@ declare let Cesium: any;
 //let global_coord_array: number[];
 //let global_coord_map: Map<string, number[]>;
 
+// Cesium.Ion.defaultAccessToken =
+//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMTE4ZTAwNC1iYjY0LTQ2MmUtOTAzNi0wZDNhY2EyY2MzNTAiLCJpZCI6MTI4NTgxLCJpYXQiOjE2Nzg3NjAzNTB9.1UEATVrKMPSwbEh6ObHPAMs1L99KpJg_pKqMjVDqYDk";
 Cesium.Ion.defaultAccessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMTE4ZTAwNC1iYjY0LTQ2MmUtOTAzNi0wZDNhY2EyY2MzNTAiLCJpZCI6MTI4NTgxLCJpYXQiOjE2Nzg3NjAzNTB9.1UEATVrKMPSwbEh6ObHPAMs1L99KpJg_pKqMjVDqYDk";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNzIyMjA2MC02ZDY2LTQ1YmUtYjc0Yi05MzFhY2ViZWNkMWUiLCJpZCI6MTIzOTU4LCJpYXQiOjE2NzU4OTY5MzV9.iWKvQ4p-2joQPJ4o3vMeT3HDeBkyKb5ijeA87NEppa4";
 
 @Injectable({
   providedIn: 'root'
@@ -48,7 +50,6 @@ export class CesiumService {
 
     // Load all no custom fly zones from database into cesium
     this.getAndLoadNoFlyZones();
-
     // Plots new flight point
     this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel);
   }
@@ -63,8 +64,32 @@ export class CesiumService {
       this.global_viewer.scene.requestRenderMode = false;
     }
   }
-
+  
   public getAndLoadNoFlyZones(): void {
+
+    // Code for adding a model plane into Cesium
+    // It's only in this function because this is where I got it to work
+    // I'll move it soon - Justin Kenney
+    makePlane(this.global_viewer).then(function (result){
+      return result;
+    });
+      async function makePlane(view: any) {
+        const pUri = await Cesium.IonResource.fromAssetId(1662340);
+        let airplane = view.entities.add({
+
+          position: new Cesium.Cartesian3.fromDegrees(-80, 40, 10000),
+          model: {
+            uri: pUri,
+            scale: 1000,
+          },
+
+        });
+        //view.flyTo(airplane);
+        return airplane;
+      }
+      
+
+    
     console.log("INSIDE NO FLY ZONES")
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
@@ -119,8 +144,11 @@ export class CesiumService {
         });
         console.log(polygonNoFly)
       }
+      
     })
   }
+
+  
 
   flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string) {
     if (!this.global_coord_map.has(flightLabel)) {
@@ -181,6 +209,8 @@ export class CesiumService {
         clampToGround: false,
       },
     });
+
+    
 
     // If the location is new, fly to the point
     // if (location_has_changed) {
