@@ -1,9 +1,12 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RectangleNoFly } from './objects/rectangle-no-fly/rectangle-no-fly';
 import { PolygonNoFly } from './objects/polygon-no-fly/polygon-no-fly';
 import { EllipsoidNoFly } from './objects/ellipsoid-no-fly/ellipsoid-no-fly';
 import { GetNoFlyZonesResponse } from './objects/get-no-fly-zones-response/get-no-fly-zones-response';
+import { getNoFlyZonesConflictResponse } from './objects/get-no-fly-zones-conflict-response/get-no-fly-zones-conflict-response';
+import { Observable, tap } from 'rxjs';
+import { GetFlightLocationResponse } from './objects/get-flight-location-response/get-flight-location-response';
 
 declare let Cesium: any;
 //let global_viewer: any;
@@ -33,6 +36,18 @@ export class CesiumService {
     })
   };
 
+  // Needed so you can add params to http calls without messing up other service calls
+  httpHeaders= new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+    'key': 'x-api-key',
+    'value': 'NNctr6Tjrw9794gFXf3fi6zWBZ78j6Gv3UCb3y0x',
+
+  })
+
   constructor(public httpClient: HttpClient) {
   }
 
@@ -40,9 +55,11 @@ export class CesiumService {
   rectangleNoFly: RectangleNoFly = new RectangleNoFly();
   polygonNoFly: PolygonNoFly = new PolygonNoFly();
   getNoFlyZoneResponse: GetNoFlyZonesResponse;
+  getNoFlyZoneConflictResponse: getNoFlyZonesConflictResponse;
   prevFlightLabel: string;
   global_viewer: any;
   global_coord_map: Map<string, number[]> = new Map<string, number[]>();
+  conflictFlights: string[];
 
   public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string): void {
     // Sets up cesium viewer
@@ -52,6 +69,8 @@ export class CesiumService {
     this.getAndLoadNoFlyZones();
     // Plots new flight point
     this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel);
+
+    
   }
 
   public setUpViewer(div: string): void {
@@ -64,7 +83,40 @@ export class CesiumService {
       this.global_viewer.scene.requestRenderMode = false;
     }
   }
-  
+
+  private checkInNoFly(longitude: number, latitude: number, altitude: number, flightLabel: string): Observable<getNoFlyZonesConflictResponse> {
+
+    let queryParams = new HttpParams();
+    queryParams = queryParams.append("longitude", longitude);
+    queryParams = queryParams.append("latitude", latitude);
+    queryParams = queryParams.append("altitude", altitude);
+    
+
+      return this.httpClient.get<getNoFlyZonesConflictResponse>('http://localhost:9093/getInNoFlyZone', {
+        headers: this.httpHeaders,
+        params: queryParams
+      }).pipe( tap(response => {
+          this.getNoFlyZoneConflictResponse = response;
+        })
+      );
+        
+  }
+
+  private getFlightLocation(longitude: number, latitude: number, flightLabel: string): Observable<GetFlightLocationResponse> {
+    let queryParams = new HttpParams();
+    queryParams = queryParams.append("longitude", longitude);
+    queryParams = queryParams.append("latitude", latitude);
+
+    return this.httpClient.get<GetFlightLocationResponse>('http://localhost:9093/getFlightLocation', {
+        headers: this.httpHeaders,
+        params: queryParams
+      }).pipe( tap(response => {
+          console.log("Flight location response recieved" + response.location)
+        })
+      );
+  }
+
+ 
   public getAndLoadNoFlyZones(): void {
 
     // Code for adding a model plane into Cesium
@@ -93,7 +145,7 @@ export class CesiumService {
     console.log("INSIDE NO FLY ZONES")
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
-      console.log("Response:" + this.getNoFlyZoneResponse);
+      // console.log("Response:" + this.getNoFlyZoneResponse);
 
       console.log('ELLIPSOID NO FLY ZONES')
       for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
@@ -106,7 +158,7 @@ export class CesiumService {
             material: Cesium.Color.RED.withAlpha(0.5),
           }
         });
-        console.log(ellipsoidNoFly)
+        // console.log(ellipsoidNoFly)
       }
 
       console.log('RECTANGLE NO FLY ZONE')
@@ -121,7 +173,7 @@ export class CesiumService {
             coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
           },
         });
-        console.log(rectangleNoFly)
+        // console.log(rectangleNoFly)
       }
 
       console.log('POLYGON NO FLY ZONE')
@@ -142,7 +194,7 @@ export class CesiumService {
 
           },
         });
-        console.log(polygonNoFly)
+        // console.log(polygonNoFly)
       }
       
     })
@@ -151,6 +203,7 @@ export class CesiumService {
   
 
   flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string) {
+    let conflictResponse: string = "";
     if (!this.global_coord_map.has(flightLabel)) {
       this.global_coord_map.set(flightLabel, []);
     }
@@ -175,6 +228,7 @@ export class CesiumService {
         console.log("location_has_changed: " + location_has_changed)
       }
     }
+    
 
 
     if (location_has_changed) {
@@ -183,6 +237,8 @@ export class CesiumService {
         current_coord_arr.push(latitude);
         current_coord_arr.push(altitude);
       }
+
+      
     }
 
     console.log("Coordinate Objects");
@@ -190,14 +246,21 @@ export class CesiumService {
     console.log(current_coord_arr);
 
     // Adding a point to mark location
+    // If conflict response string is not empty add warning description to object 
+
+    var splitStr = flightLabel.split(" ");
+    
     var point = this.global_viewer.entities.add({
-      name: flightLabel,
+      name: "Flight ICAO: " + splitStr[1],
       position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
       point: {
-        color: Cesium.Color.RED,
+        color: Cesium.Color.GREEN,
         pixelSize: 16,
-      },
+      }
+      
     });
+    
+    
 
     // Making a line with the stored coordinates
     this.global_viewer.entities.add({
@@ -205,11 +268,26 @@ export class CesiumService {
       polyline: {
         positions: Cesium.Cartesian3.fromDegreesArrayHeights(current_coord_arr),
         width: 10,
-        material: Cesium.Color.RED,
+        material: Cesium.Color.PURPLE,
         clampToGround: false,
       },
     });
 
+    this.getFlightLocation(longitude, latitude, flightLabel).subscribe( response => {
+
+      this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
+        data => {
+          console.log("CONFILCIT RESPONSE STRING: " + conflictResponse);
+          if(data.inConflict) {
+            point.description= '<p> Flight ICAO: '+splitStr[1] +' is in no fly zone: ' + data.noFlyZoneName + '<br>\
+            For Airline: ' + splitStr[0] + '</p><br> Flight location is over ' + response.location;
+            this.global_viewer.selectedEntity = point;
+          } else {
+            point.description= '<p> Flight ICAO: '+splitStr[1] + ' is over ' + response.location;
+          }
+        }
+      )
+    })
     
 
     // If the location is new, fly to the point
