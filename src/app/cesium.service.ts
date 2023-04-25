@@ -60,6 +60,7 @@ export class CesiumService {
   global_viewer: any;
   global_coord_map: Map<string, number[]> = new Map<string, number[]>();
   conflictFlights: string[];
+  pointsMap: Map<string,any[]> = new Map<string, any[]>();
 
   public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string): void {
     // Sets up cesium viewer
@@ -207,9 +208,13 @@ export class CesiumService {
     if (!this.global_coord_map.has(flightLabel)) {
       this.global_coord_map.set(flightLabel, []);
     }
+    if(!this.pointsMap.has(flightLabel)) {
+      this.pointsMap.set(flightLabel, []);
+    }
 
 
     let current_coord_arr: number[] | undefined = this.global_coord_map.get(flightLabel);
+    let prev_entity_point: any[] | undefined = this.pointsMap.get(flightLabel);
     let prevVals: number[] | undefined;
     let prevLong: number = 0;
     let prevLat: number = 0;
@@ -247,8 +252,7 @@ export class CesiumService {
 
     // Adding a point to mark location
     // If conflict response string is not empty add warning description to object 
-
-    var splitStr = flightLabel.split(" ");
+    var splitStr = flightLabel.split("-");
     
     var point = this.global_viewer.entities.add({
       name: "Flight ICAO: " + splitStr[1],
@@ -256,10 +260,18 @@ export class CesiumService {
       point: {
         color: Cesium.Color.GREEN,
         pixelSize: 16,
-      }
+      },
+      
       
     });
+
+    if(prev_entity_point != undefined && prev_entity_point?.length > 0 ) {
+      this.global_viewer.entities.remove(prev_entity_point.pop())
+    }
     
+    if(prev_entity_point != undefined && prev_entity_point.length <= 0) {
+      prev_entity_point.push(point);
+    }
     
 
     // Making a line with the stored coordinates
@@ -272,7 +284,12 @@ export class CesiumService {
         clampToGround: false,
       },
     });
+    // function drawImage(id) {
+    //   const canvas = document.createElement('canvas');
+    //   const context2D = canvas.getContext('2d');
 
+
+    // }
     this.getFlightLocation(longitude, latitude, flightLabel).subscribe( response => {
 
       this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
@@ -282,6 +299,13 @@ export class CesiumService {
             point.description= '<p> Flight ICAO: '+splitStr[1] +' is in no fly zone: ' + data.noFlyZoneName + '<br>\
             For Airline: ' + splitStr[0] + '</p><br> Flight location is over ' + response.location;
             this.global_viewer.selectedEntity = point;
+            point.billboard = {
+              image: "/assets/images/WarningLabel.png",
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+              pixelOffset: new Cesium.Cartesian2(0,25),
+              width: 57,
+              height: 15,
+            };
           } else {
             point.description= '<p> Flight ICAO: '+splitStr[1] + ' is over ' + response.location;
           }

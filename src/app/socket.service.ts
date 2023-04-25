@@ -33,7 +33,7 @@ export class SocketService {
 
         let airlineName: string = jsonDataObj.airline;
         let flightIcao: string = jsonDataObj.icao;
-        let flightLabel: string = airlineName + " " + flightIcao;
+        let flightLabel: string = airlineName + "-" + flightIcao;
 
 
         let liveObj: flightData = JSON.parse(jsonDataObj.live)
