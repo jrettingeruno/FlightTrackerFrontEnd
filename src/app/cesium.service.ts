@@ -93,7 +93,7 @@ export class CesiumService {
     queryParams = queryParams.append("altitude", altitude);
     
 
-      return this.httpClient.get<getNoFlyZonesConflictResponse>('http://localhost:9093/getInNoFlyZone', {
+      return this.httpClient.get<getNoFlyZonesConflictResponse>('http://34.198.166.4:9093/getInNoFlyZone', {
         headers: this.httpHeaders,
         params: queryParams
       }).pipe( tap(response => {
@@ -108,7 +108,7 @@ export class CesiumService {
     queryParams = queryParams.append("longitude", longitude);
     queryParams = queryParams.append("latitude", latitude);
 
-    return this.httpClient.get<GetFlightLocationResponse>('http://localhost:9093/getFlightLocation', {
+    return this.httpClient.get<GetFlightLocationResponse>('http://34.198.166.4:9093/getFlightLocation', {
         headers: this.httpHeaders,
         params: queryParams
       }).pipe( tap(response => {
