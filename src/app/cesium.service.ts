@@ -77,7 +77,10 @@ export class CesiumService {
   public setUpViewer(div: string): void {
     // Setting up viewer. Checks to make sure it doesn't exist before creating a new one
     if (this.global_viewer == null || this.global_viewer == undefined) {
-      this.global_viewer = new Cesium.Viewer(div)
+      this.global_viewer = new Cesium.Viewer(div, {
+        animation: false,
+        timeline: false
+      })
 
       this.global_viewer.infoBox.frame.removeAttribute("sandbox");
       this.global_viewer.infoBox.frame.src = "about:blank";
