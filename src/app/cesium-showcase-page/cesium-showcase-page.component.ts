@@ -42,7 +42,7 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
     private cesium: CesiumService) {}
 
   getLiveFlightIcaos(): void {
-    this.httpClient.get<string>('http://34.198.166.4:9091/flighticao/getLive', this.httpOptions).subscribe( data => {
+    this.httpClient.get<string>('http://34.198.166.4/flighticao/getLive', this.httpOptions).subscribe( data => {
     console.log(JSON.parse(JSON.stringify(data)).icaos)  
     this.flight_icao_list = JSON.parse(JSON.stringify(data)).icaos.split(",");
     })
@@ -65,7 +65,7 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
   getFlightInfo(): void {
     console.log("getting Flight Info")
-    this.httpClient.get<string>('http://34.198.166.4:9091/flighticao/' + this.search, this.httpOptions).subscribe( data => {
+    this.httpClient.get<string>('http://34.198.166.4/flighticao/' + this.search, this.httpOptions).subscribe( data => {
       console.log(data);
     })
     this.are_flights_visible = false;
@@ -93,7 +93,7 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
       generateRequest.setLatitudeChange(result.latChange)
       generateRequest.setAltitudeChange(result.altChange)
 
-      this.httpClient.post<string>('http://34.198.166.4:9091/flighticao/generate/', generateRequest, this.httpOptions).subscribe(data => {
+      this.httpClient.post<string>('http://34.198.166.4/flighticao/generate/', generateRequest, this.httpOptions).subscribe(data => {
       console.log(data);
     })
     })
