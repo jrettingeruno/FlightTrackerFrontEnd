@@ -5,10 +5,11 @@
                 <mat-label>Flight ICAO</mat-label>
                 <input matInput placeholder="Ex. NE654" [(ngModel)]="search" name="search">
             </mat-form-field>
-            <button mat-raised-button (click)="getFlightInfo()">Track Flight</button>
-            <button mat-raised-button (click)="toggleFlightsVisible()">Show/Hide Flights</button>
-            <button mat-raised-button (click)="getLiveFlightIcaos()">Refresh Live</button>
-            <button mat-raised-button (click)="generateMockFlight()">Generate Mock Flight</button>
+            <button mat-raised-button class="functionButt" (click)="getFlightInfo()">Track Flight</button>
+            <button mat-raised-button class="functionButt" (click)="toggleFlightsVisible()">Show/Hide Flights</button>
+            <button mat-raised-button class="functionButt" (click)="getLiveFlightIcaos()">Refresh Live</button>
+            <button mat-raised-button class="functionButt" (click)="generateMockFlight()">Generate Mock Flight</button>
+            <button mat-raised-button class="functionButt" (click)="addNoFlyZone()">Add No Fly Zone</button>
         </form>
     </div>
 </div>

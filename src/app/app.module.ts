@@ -28,6 +28,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { NoFlyZoneSubmittedComponent } from './no-fly-zone-types/no-fly-zone-submitted/no-fly-zone-submitted/no-fly-zone-submitted.component'
 import { FlightGenerateDialog } from './flight-generate-dialog/flight-generate-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { NoFlyZoneGenerateDialog } from './no-fly-zone-generate-dialog/no-fly-zone-generate-dialog.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     CustomPolygonNoFlyZoneComponent,
     CesiumShowcaseComponent,
     NoFlyZoneSubmittedComponent,
-    FlightGenerateDialog
+    FlightGenerateDialog,
+    NoFlyZoneGenerateDialog
   ],
   imports: [
     BrowserModule,

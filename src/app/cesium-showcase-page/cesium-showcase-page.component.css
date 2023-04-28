@@ -1,31 +1,39 @@
 .example-form {
-    min-width: 150px;
-    max-width: 500px;
-    width: 100%;
-    height: 50%;
-    font-size: medium;
-  }
-  
-  .example-full-width {
-    width: 200%;
-  }
+  min-width: 150px;
+  max-width: 500px;
+  width: 100%;
+  height: 50%;
+  font-size: medium;
+}
 
-  .main {
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-  }
+.example-full-width {
+  width: 100%;
+}
 
-  .flight-option{
-    border-radius: 10px;
-    padding: .5em;
-    margin-top: 1em;
-  }
+.main {
+  margin: auto;
+  width: 50%;
+  padding: 1px;
+  font-size: large;
+}
 
-  .flight-select{
-    float: right;
-    margin-left: -50%;
-    background-color: blue;
-    color: white;
-    border-radius: 10px;
+.flight-option {
+  border-radius: 10px;
+  padding: .8em;
+  margin-top: 1em;
+  width: 20%;
+}
+
+.flight-select {
+  float: right;
+  margin-left: -50%;
+  background-color: blue;
+  color: white;
+  border-radius: 10px;
+}
+
+.functionButt {
+  background-color: blue;
+  color: white;
+  margin: 5px;
 }

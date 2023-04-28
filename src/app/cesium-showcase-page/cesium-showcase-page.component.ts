@@ -4,6 +4,7 @@ import { GenerateFlightRequest } from '../objects/generate-flight/generate-fligh
 import { MatDialog } from '@angular/material/dialog';
 import { FlightGenerateDialog } from '../flight-generate-dialog/flight-generate-dialog.component';
 import { CesiumService } from '../cesium.service';
+import { NoFlyZoneGenerateDialog } from '../no-fly-zone-generate-dialog/no-fly-zone-generate-dialog.component';
 
 @Component({
   selector: 'app-cesium-showcase',
@@ -97,6 +98,13 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
       console.log(data);
     })
     })
+  }
+
+  addNoFlyZone(): void {
+    this.are_flights_visible = false;
+    const dialogRef = this.dialog.open(NoFlyZoneGenerateDialog, {
+      data: {}
+    });
   }
 
 }

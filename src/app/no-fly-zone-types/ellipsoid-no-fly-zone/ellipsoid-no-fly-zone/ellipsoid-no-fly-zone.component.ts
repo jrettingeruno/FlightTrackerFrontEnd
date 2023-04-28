@@ -3,6 +3,7 @@ import { Component, OnChanges, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EllipsoidNoFly } from 'src/app/objects/ellipsoid-no-fly/ellipsoid-no-fly';
 import { NoFlyZoneSubmittedComponent } from '../../no-fly-zone-submitted/no-fly-zone-submitted/no-fly-zone-submitted.component';
+import { CesiumService } from 'src/app/cesium.service';
 
 @Component({
   selector: 'app-ellipsoid-no-fly-zone',
@@ -37,7 +38,8 @@ export class EllipsoidNoFlyZoneComponent implements OnInit, OnChanges{
 
 constructor( 
   private dialog: MatDialog,
-  private httpClient: HttpClient) {}
+  private httpClient: HttpClient,
+  private cesium: CesiumService) {}
 
   ngOnInit(){
 
@@ -106,10 +108,9 @@ constructor(
      this.ellipsoidNoFly, this.httpOptions).subscribe( data => {
       console.log(data);
     })
-    console.log('Here is your no flyzone', this.ellipsoidNoFly);
-    const dialogRef = this.dialog.open(NoFlyZoneSubmittedComponent, {
-      width: '250px'
-    })
+
+    document.getElementById("closeDialog")?.click();
+    this.cesium.getAndLoadNoFlyZones();
 
   }
 
