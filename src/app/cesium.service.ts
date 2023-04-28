@@ -61,6 +61,11 @@ export class CesiumService {
   global_coord_map: Map<string, number[]> = new Map<string, number[]>();
   conflictFlights: string[];
   pointsMap: Map<string,any[]> = new Map<string, any[]>();
+  entities: any;
+  ellipsoids: any;
+  rectangles: any;
+  polygons: any;
+  
 
   public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string): void {
     // Sets up cesium viewer
@@ -76,17 +81,36 @@ export class CesiumService {
 
   public setUpViewer(div: string): void {
     // Setting up viewer. Checks to make sure it doesn't exist before creating a new one
+    Cesium.Math.setRandomNumberSeed(1234);
     if (this.global_viewer == null || this.global_viewer == undefined) {
       this.global_viewer = new Cesium.Viewer(div, {
         animation: false,
         timeline: false
       })
 
-      this.global_viewer.infoBox.frame.removeAttribute("sandbox");
-      this.global_viewer.infoBox.frame.src = "about:blank";
-      this.global_viewer.scene.requestRenderMode = false;
+      //Sandcastle.addToolbarButton("Toggle Ellipsoids", function() {
+
+      //})
+      
+      
     }
+    
+    
   }
+
+  public hidePolygonNoFlys() {
+    this.polygons.show = !this.polygons.show
+  }
+
+  public hideRectangleNoFlyz() {
+    this.rectangles.show = !this.rectangles.show
+  }
+
+  public hideEllipsoidNoFlyz() {
+    this.ellipsoids.show = !this.ellipsoids.show
+  }
+
+  
 
   private checkInNoFly(longitude: number, latitude: number, altitude: number, flightLabel: string): Observable<getNoFlyZonesConflictResponse> {
 
@@ -96,7 +120,7 @@ export class CesiumService {
     queryParams = queryParams.append("altitude", altitude);
     
 
-      return this.httpClient.get<getNoFlyZonesConflictResponse>('http://34.198.166.4:9093/getInNoFlyZone', {
+      return this.httpClient.get<getNoFlyZonesConflictResponse>('http://localhost:9093/getInNoFlyZone', {
         headers: this.httpHeaders,
         params: queryParams
       }).pipe( tap(response => {
@@ -111,7 +135,7 @@ export class CesiumService {
     queryParams = queryParams.append("longitude", longitude);
     queryParams = queryParams.append("latitude", latitude);
 
-    return this.httpClient.get<GetFlightLocationResponse>('http://34.198.166.4:9093/getFlightLocation', {
+    return this.httpClient.get<GetFlightLocationResponse>('http://localhost:9093/getFlightLocation', {
         headers: this.httpHeaders,
         params: queryParams
       }).pipe( tap(response => {
@@ -122,6 +146,10 @@ export class CesiumService {
 
  
   public getAndLoadNoFlyZones(): void {
+    this.entities = this.global_viewer.entities;
+    this.ellipsoids = this.entities.add(new Cesium.Entity());
+    this.rectangles = this.entities.add(new Cesium.Entity());
+    this.polygons= this.entities.add(new Cesium.Entity());
 
     // Code for adding a model plane into Cesium
     // It's only in this function because this is where I got it to work
@@ -147,7 +175,7 @@ export class CesiumService {
 
     
     console.log("INSIDE NO FLY ZONES")
-    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+    this.httpClient.get<GetNoFlyZonesResponse>('http://localhost:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
       // console.log("Response:" + this.getNoFlyZoneResponse);
 
@@ -155,6 +183,7 @@ export class CesiumService {
       for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
 
         this.global_viewer.entities.add({
+          parent: this.ellipsoids,
           name: ellipsoidNoFly.name,
           position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
           ellipsoid: {
@@ -168,6 +197,7 @@ export class CesiumService {
       console.log('RECTANGLE NO FLY ZONE')
       for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
         this.global_viewer.entities.add({
+          parent: this.rectangles,
           name: rectangleNoFly.name, // String name
           rectangle: {
             rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
@@ -183,6 +213,7 @@ export class CesiumService {
       console.log('POLYGON NO FLY ZONE')
       for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
         this.global_viewer.entities.add({
+          parent: this.polygons,
           name: polygonNoFly.name, //String Name
 
           polygon: {
@@ -200,7 +231,9 @@ export class CesiumService {
         });
         // console.log(polygonNoFly)
       }
-      
+      // Sandcastle.addToolbarButton("Toggle Ellipsoids", () => {
+      //   this.ellipsoids.show = !this.ellipsoids.show
+      // })
     })
   }
 
@@ -287,12 +320,7 @@ export class CesiumService {
         clampToGround: false,
       },
     });
-    // function drawImage(id) {
-    //   const canvas = document.createElement('canvas');
-    //   const context2D = canvas.getContext('2d');
-
-
-    // }
+    
     this.getFlightLocation(longitude, latitude, flightLabel).subscribe( response => {
 
       this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
@@ -332,5 +360,8 @@ export class CesiumService {
     //   this.global_viewer.flyTo(point);
     // }
   }
+  
 
 }
+
+

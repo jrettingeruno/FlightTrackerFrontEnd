@@ -1,1 +1,43 @@
-<div id="cesium"></div>
+<body>
+    <div class="wrapper">
+        <div id="cesium">
+
+        </div>
+        
+            <mat-toolbar>
+                <button mat-icon-button (click)="drawer.toggle()">
+                    <mat-icon *ngIf="!drawer.opened">
+                        menu
+                    </mat-icon>
+                    <mat-icon *ngIf="drawer.opened">
+                        close
+                    </mat-icon>
+                </button>
+                Cesium Options
+            </mat-toolbar>
+            <mat-drawer-container >
+                <mat-drawer #drawer  mode="over">
+                    
+                    <mat-checkbox mat-checkbox type="checkbox" id="ellipHide" ngModel (ngModelChange)="hideEllip($event)">
+                    <span>Hide Ellipsoid No Fly Zones</span>
+                    </mat-checkbox>
+                    <br>
+                    <mat-checkbox type="checkbox" id="rectHide" ngModel (ngModelChange)="hideRect($event)">
+                    <span>Hide Rectangle No Fly Zones</span>
+                    </mat-checkbox>
+                    <br>
+                    <mat-checkbox type="checkbox" id="polyHide" ngModel (ngModelChange)="hidePoly($event)">
+                    <span>Hide Polygon No Fly Zones</span>    
+                    </mat-checkbox>
+                    
+                </mat-drawer>
+                
+            </mat-drawer-container>
+        
+        
+        
+        
+    </div>
+
+
+</body>
