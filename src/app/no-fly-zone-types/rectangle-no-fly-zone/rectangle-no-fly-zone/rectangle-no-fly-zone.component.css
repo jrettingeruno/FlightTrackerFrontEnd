@@ -8,6 +8,13 @@
     gap: 10px;
     grid-auto-rows: minmax(00px, auto);
     padding: 1em;
+    padding-top: 0em;
+}
+
+button {
+    height: 200px;
+    width: 150px;
+    font-size: large;
 }
 
 .one {

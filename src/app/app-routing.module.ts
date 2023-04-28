@@ -12,10 +12,10 @@ import { CesiumShowcaseComponent } from './cesium-showcase-page/cesium-showcase-
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, title: 'Home' },
-  { path: 'search', component: FlightSearchComponent, title: 'Flight Search' },
+  //{ path: 'search', component: FlightSearchComponent, title: 'Flight Search' },
   { path: 'add-no-fly-zone', component: AddNoFlyZoneComponent, title: 'No Fly Zone' },
-  { path: 'track/:id', component: FlightTrackingPageComponent, title: 'Flight Tracker' },
-  { path: 'test', component: CesiumShowcaseComponent, title: 'Testing Page'},
+  //{ path: 'track/:id', component: FlightTrackingPageComponent, title: 'Flight Tracker' },
+  { path: 'showcase', component: CesiumShowcaseComponent, title: 'Flight Tracker'},
   { path: '**', component: PageNotFoundComponent, title: 'Oops! Page not found!' }
 ];
 

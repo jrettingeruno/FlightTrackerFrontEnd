@@ -144,33 +144,62 @@ export class CesiumService {
       );
   }
 
- 
+  public async makePlane(view: any, name: string, long: number, lat: number, alt: number) {
+    // If plane exists
+    if(view.entities.getById(name)){
+      let oldAirplane = view.entities.getById(name);
+      
+      // Move plane and change scale
+      if(!(long == 0 && lat == 0 && alt == 0)){
+        let newPosition = new Cesium.Cartesian3.fromDegrees(long, lat, alt);
+
+        
+        
+        let direction = Cesium.Cartesian3.subtract(newPosition, oldAirplane._position._value, new Cesium.Cartesian3());
+        Cesium.Cartesian3.normalize(direction, direction);
+        
+        let rotationMatrix = Cesium.Transforms.rotationMatrixFromPositionVelocity(oldAirplane._position._value, direction);
+        
+        oldAirplane._position._value = newPosition;
+        
+        let newOrientation = new Cesium.Quaternion();
+        Cesium.Quaternion.fromRotationMatrix(rotationMatrix, newOrientation);
+        oldAirplane.orientation = newOrientation;
+
+      }
+      let distance = Cesium.Cartesian3.distance(oldAirplane._position._value, view.camera.position);
+      oldAirplane._model._scale._value = distance / (75 + (distance / 10000))
+      
+    }else{ // If this is a new plane, make it
+      view.entities.remove(view.entities.getById(name))
+      let newPosition = new Cesium.Cartesian3.fromDegrees(long, lat, alt);
+      let distance = Cesium.Cartesian3.distance(newPosition, view.camera.position);
+      
+      const pUri = await Cesium.IonResource.fromAssetId(1662340);
+      let airplane = {
+        id: name,
+        name: name,
+        position: newPosition,
+        model: {
+          uri: pUri,
+          
+          scale: distance / (75 + (distance / 10000)),
+        },
+        
+      };
+      view.entities.add(airplane);
+    }
+    
+    
+  }
+
   public getAndLoadNoFlyZones(): void {
     this.entities = this.global_viewer.entities;
     this.ellipsoids = this.entities.add(new Cesium.Entity());
     this.rectangles = this.entities.add(new Cesium.Entity());
     this.polygons= this.entities.add(new Cesium.Entity());
 
-    // Code for adding a model plane into Cesium
-    // It's only in this function because this is where I got it to work
-    // I'll move it soon - Justin Kenney
-    makePlane(this.global_viewer).then(function (result){
-      return result;
-    });
-      async function makePlane(view: any) {
-        const pUri = await Cesium.IonResource.fromAssetId(1662340);
-        let airplane = view.entities.add({
-
-          position: new Cesium.Cartesian3.fromDegrees(-80, 40, 10000),
-          model: {
-            uri: pUri,
-            scale: 1000,
-          },
-
-        });
-        //view.flyTo(airplane);
-        return airplane;
-      }
+    
       
 
     
@@ -300,6 +329,11 @@ export class CesiumService {
       
       
     });
+
+    if(!this.global_viewer.entities.getById("Flight ICAO: " + splitStr[1])){
+      this.global_viewer.camera.moveEnd.addEventListener(() => this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1],0, 0, 0));
+    }
+    this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], longitude, latitude, altitude);
 
     if(prev_entity_point != undefined && prev_entity_point?.length > 0 ) {
       this.global_viewer.entities.remove(prev_entity_point.pop())

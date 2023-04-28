@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PolygonNoFly } from 'src/app/objects/polygon-no-fly/polygon-no-fly';
 import { NoFlyZoneSubmittedComponent } from '../../no-fly-zone-submitted/no-fly-zone-submitted/no-fly-zone-submitted.component';
+import { CesiumService } from 'src/app/cesium.service';
 
 @Component({
   selector: 'app-custom-polygon-no-fly-zone',
@@ -41,7 +42,8 @@ export class CustomPolygonNoFlyZoneComponent {
 
   constructor( 
   private dialog: MatDialog,
-  private httpClient: HttpClient) {}
+  private httpClient: HttpClient,
+  private cesium: CesiumService) {}
   
   changeName(event: Event): void {
     this.polygonNoFly.name = this.name;
@@ -127,10 +129,8 @@ export class CustomPolygonNoFlyZoneComponent {
      this.polygonNoFly, this.httpOptions).subscribe( data => {
       console.log(data);
     })
-    console.log('Here is your no flyzone', this.polygonNoFly);
-    const dialogRef = this.dialog.open(NoFlyZoneSubmittedComponent, {
-      width: '250px'
-    })
 
+    document.getElementById("closeDialog")?.click();
+    this.cesium.getAndLoadNoFlyZones();
   }
 }

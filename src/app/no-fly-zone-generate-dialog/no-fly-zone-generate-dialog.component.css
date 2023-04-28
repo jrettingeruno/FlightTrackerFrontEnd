@@ -1,0 +1,12 @@
+.main {
+    height: 100%;
+    width: 1200px;
+}
+
+.close-button {
+    float: right;
+}
+
+#degreeWarning {
+    font-weight: bold;
+}
