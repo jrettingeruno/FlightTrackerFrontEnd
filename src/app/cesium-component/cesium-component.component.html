@@ -18,18 +18,18 @@
             <mat-drawer-container >
                 <mat-drawer #drawer  mode="over">
                     
-                    <mat-checkbox mat-checkbox type="checkbox" id="ellipHide" ngModel (ngModelChange)="hideEllip($event)">
-                    <span>Hide Ellipsoid No Fly Zones</span>
-                    </mat-checkbox>
+                    <button mat-button class="menu-button" (click)="drawer.toggle();hideEllip()">Un/Hide All Custom Ellipsoids</button>
                     <br>
-                    <mat-checkbox type="checkbox" id="rectHide" ngModel (ngModelChange)="hideRect($event)">
-                    <span>Hide Rectangle No Fly Zones</span>
-                    </mat-checkbox>
+                    <button mat-button class="menu-button" (click)="drawer.toggle();hideRect()">Un/Hide All Custom Rectangles</button>                    
                     <br>
-                    <mat-checkbox type="checkbox" id="polyHide" ngModel (ngModelChange)="hidePoly($event)">
-                    <span>Hide Polygon No Fly Zones</span>    
-                    </mat-checkbox>
-                    
+                    <button mat-button class="menu-button" (click)="drawer.toggle();hidePoly()">Un/Hide All Custom Polygons</button>
+                    <br>
+                    <button mat-button class="menu-button" (click)="drawer.toggle(); hideSelected()">Hide Selected Entity</button>
+                    <br>
+                    <button mat-button class="menu-button" (click)="drawer.toggle(); reset()">Reset Entities</button>
+                    <br>
+                    <br>
+                    <button mat-button class="menu-button warning" (click)="drawer.toggle(); deleteNoFly()">Delete Selected Entity</button>
                 </mat-drawer>
                 
             </mat-drawer-container>

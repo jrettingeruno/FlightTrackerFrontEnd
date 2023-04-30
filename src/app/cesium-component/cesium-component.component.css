@@ -22,7 +22,7 @@ mat-drawer {
     /* text-align: center; */
     display: flex;
     align-items: center;
-    
+    top: 65px;
     
 }
 
@@ -32,16 +32,19 @@ mat-icon {
 }
 
 mat-drawer-container {
-    height: calc(100vh );
+    height: auto;
+    position: initial;
 }
 
 mat-toolbar {
-    background: goldenrod;
+    background: rgb(75, 74, 73);
     color: white;
     text-align: center;
+    width: 25%;
     position: absolute;
     top: 0;
     left: 0;
-    
 
 }
+
+.warning:hover{ background-color: rgb(238, 9, 9);}

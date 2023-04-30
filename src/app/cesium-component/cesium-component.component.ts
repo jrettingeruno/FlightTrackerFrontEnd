@@ -33,16 +33,28 @@ export class CesiumComponentComponent implements OnInit {
     this.socket.connectToConsumer();
   }
 
-  hideEllip(event: string) {
+  hideEllip() {
     this.cesium.hideEllipsoidNoFlyz();
   }
 
-  hideRect(event: string) {
+  hideRect() {
     this.cesium.hideRectangleNoFlyz();
   }
 
-  hidePoly(event: string) {
+  hidePoly() {
     this.cesium.hidePolygonNoFlys();
+  }
+
+  hideSelected() {
+    this.cesium.hideSelected();
+  }
+
+  reset() {
+    this.cesium.resetEntities();
+  }
+
+  deleteNoFly(){
+    this.cesium.deleteNoFlyZone();
   }
 
 }

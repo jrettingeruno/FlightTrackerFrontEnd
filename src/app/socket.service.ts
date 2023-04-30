@@ -4,6 +4,7 @@ import * as Stomp from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 import '../polyfills'
 import { CesiumService } from './cesium.service';
+import { FlightDetails } from './objects/flight-details/flight-details';
 
 
 @Injectable({
@@ -35,8 +36,9 @@ export class SocketService {
         let flightIcao: string = jsonDataObj.icao;
         let flightLabel: string = airlineName + "-" + flightIcao;
 
-
+        
         let liveObj: flightData = JSON.parse(jsonDataObj.live)
+                
         console.log(liveObj)
         console.log("ALT: " + liveObj.altitude);
         console.log("LAT: " + liveObj.latitude);
@@ -44,7 +46,7 @@ export class SocketService {
         console.log("Airline Name: " + airlineName);
         console.log("Flight Icao: ", flightIcao);
 
-        this.cesium.updateFlightsAndZones("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude, flightLabel);
+        this.cesium.updateFlightsAndZones("cesium", liveObj.longitude, liveObj.latitude, liveObj.altitude, flightLabel, jsonDataObj);
       })
     })
   }
