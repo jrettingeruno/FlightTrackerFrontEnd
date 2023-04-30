@@ -99,8 +99,7 @@ export class CesiumService {
   }
 
   public hidePolygonNoFlys() {
-    console.log("CALLED HIDE IN CES")
-    console.log("_______________" + this.polygons.show)
+    
     this.polygons.show = !this.polygons.show
   }
 
@@ -149,6 +148,16 @@ export class CesiumService {
     }).subscribe(response => {
       console.log("Getting RESPONSE " + response);
     })
+  }
+
+  public flyToNoFlyZone(zoneName: string) {
+
+    this.global_viewer.entities.values.forEach((element: any) => {
+        if(element.name == zoneName) {
+          this.global_viewer.zoomTo(element)
+        }
+    })
+    
   }
 
 

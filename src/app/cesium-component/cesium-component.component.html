@@ -30,6 +30,13 @@
                     <br>
                     <br>
                     <button mat-button class="menu-button warning" (click)="drawer.toggle(); deleteNoFly()">Delete Selected Entity</button>
+                    <br>
+                    <mat-form-field>
+                        <mat-label>Zone Name</mat-label>
+                        <input matInput [(ngModel)]="zoneName">
+                        <button mat-button class="menu-button" (click)="findZone()">Find No Fly Zone</button>
+                    </mat-form-field>
+
                 </mat-drawer>
                 
             </mat-drawer-container>
