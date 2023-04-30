@@ -13,6 +13,7 @@ import { MatDrawer, MatSidenav } from '@angular/material/sidenav';
 export class CesiumComponentComponent implements OnInit {
   
   id!: string | null;
+  zoneName: string;
 
 
   constructor(
@@ -56,5 +57,11 @@ export class CesiumComponentComponent implements OnInit {
   deleteNoFly(){
     this.cesium.deleteNoFlyZone();
   }
+
+  findZone() {
+    console.log("HEHEHE" + this.zoneName)
+    this.cesium.flyToNoFlyZone(this.zoneName);
+  }
+  
 
 }
