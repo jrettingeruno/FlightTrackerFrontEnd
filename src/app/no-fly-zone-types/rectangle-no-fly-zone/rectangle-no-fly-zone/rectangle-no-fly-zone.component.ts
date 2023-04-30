@@ -103,7 +103,7 @@ export class RectangleNoFlyZoneComponent {
   submit(): void {
     // TODO
     //WILL MAKE HTTP CALL TO ADD NO FLY ZONE
-    this.httpClient.post<string>('http://34.198.166.4:9093/addNoFlyZone/rectangle',
+    this.httpClient.post<string>('http://localhost:9093/addNoFlyZone/rectangle',
      this.rectangleNoFly, this.httpOptions).subscribe( data => {
       console.log(data);
     })

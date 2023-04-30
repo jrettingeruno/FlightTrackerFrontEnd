@@ -1,10 +1,11 @@
-import { Component, OnChanges, OnInit} from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GenerateFlightRequest } from '../objects/generate-flight/generate-flight-request';
 import { MatDialog } from '@angular/material/dialog';
 import { FlightGenerateDialog } from '../flight-generate-dialog/flight-generate-dialog.component';
 import { CesiumService } from '../cesium.service';
 import { NoFlyZoneGenerateDialog } from '../no-fly-zone-generate-dialog/no-fly-zone-generate-dialog.component';
+import { AirportGenerateFlightRequest } from '../objects/generate-flight/airport-generate-flight-request';
 
 @Component({
   selector: 'app-cesium-showcase',
@@ -36,16 +37,16 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
     })
   };
-  
 
-  constructor(private httpClient: HttpClient, 
+
+  constructor(private httpClient: HttpClient,
     public dialog: MatDialog,
-    private cesium: CesiumService) {}
+    private cesium: CesiumService) { }
 
   getLiveFlightIcaos(): void {
-    this.httpClient.get<string>('http://34.198.166.4/flighticao/getLive', this.httpOptions).subscribe( data => {
-    console.log(JSON.parse(JSON.stringify(data)).icaos)  
-    this.flight_icao_list = JSON.parse(JSON.stringify(data)).icaos.split(",");
+    this.httpClient.get<string>('http://localhost:9091/flighticao/getLive', this.httpOptions).subscribe(data => {
+      console.log(JSON.parse(JSON.stringify(data)).icaos)
+      this.flight_icao_list = JSON.parse(JSON.stringify(data)).icaos.split(",");
     })
 
   }
@@ -60,13 +61,13 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
     console.log('t')
   }
 
-  setFlightIcao(icao:string) : void {
+  setFlightIcao(icao: string): void {
     this.search = icao;
   }
 
   getFlightInfo(): void {
     console.log("getting Flight Info")
-    this.httpClient.get<string>('http://34.198.166.4/flighticao/' + this.search, this.httpOptions).subscribe( data => {
+    this.httpClient.get<string>('http://localhost:9091/flighticao/' + this.search, this.httpOptions).subscribe(data => {
       console.log(data);
     })
     this.are_flights_visible = false;
@@ -78,25 +79,36 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
   generateMockFlight(): void {
     this.are_flights_visible = false;
-    let generateRequest: GenerateFlightRequest = new GenerateFlightRequest();
+    let generateRequest: GenerateFlightRequest | AirportGenerateFlightRequest;
     const dialogRef = this.dialog.open(FlightGenerateDialog, {
       data: {}
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      generateRequest.setAirlineName(result.airline);
-      generateRequest.setFlightIcao(result.icao);
-      generateRequest.setLongitude(result.longitude);
-      generateRequest.setLatitude(result.latitude);
-      generateRequest.setAltitude(result.altitude);
-      
-      generateRequest.setLongitudeChange(result.longChange)
-      generateRequest.setLatitudeChange(result.latChange)
-      generateRequest.setAltitudeChange(result.altChange)
+      if (result.departAirport && result.departAirport) {
+        generateRequest = new AirportGenerateFlightRequest();
+        generateRequest.setAirlineName(result.airline);
+        generateRequest.setFlightIcao(result.icao);
+        generateRequest.setArriveAirport(result.arriveAirport)
+        generateRequest.setDepartAirport(result.departAirport)
 
-      this.httpClient.post<string>('http://34.198.166.4/flighticao/generate/', generateRequest, this.httpOptions).subscribe(data => {
-      console.log(data);
-    })
+        this.httpClient.post<string>('http://localhost:9091/airport/generate/', generateRequest, this.httpOptions).subscribe(data => {
+          console.log(data);
+        })
+      } else {
+        generateRequest = new GenerateFlightRequest();
+        generateRequest.setLongitude(result.longitude);
+        generateRequest.setLatitude(result.latitude);
+        generateRequest.setAltitude(result.altitude);
+        generateRequest.setLongitudeChange(result.longChange)
+        generateRequest.setLatitudeChange(result.latChange)
+        generateRequest.setAltitudeChange(result.altChange)
+
+        this.httpClient.post<string>('http://localhost:9091/custom/generate/', generateRequest, this.httpOptions).subscribe(data => {
+          console.log(data);
+        })
+      }
+
     })
   }
 

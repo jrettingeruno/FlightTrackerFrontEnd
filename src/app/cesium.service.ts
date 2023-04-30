@@ -10,9 +10,6 @@ import { GetFlightLocationResponse } from './objects/get-flight-location-respons
 import { FlightDetails } from './objects/flight-details/flight-details';
 
 declare let Cesium: any;
-//let global_viewer: any;
-//let global_coord_array: number[];
-//let global_coord_map: Map<string, number[]>;
 
 // Cesium.Ion.defaultAccessToken =
 //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMTE4ZTAwNC1iYjY0LTQ2MmUtOTAzNi0wZDNhY2EyY2MzNTAiLCJpZCI6MTI4NTgxLCJpYXQiOjE2Nzg3NjAzNTB9.1UEATVrKMPSwbEh6ObHPAMs1L99KpJg_pKqMjVDqYDk";
@@ -264,13 +261,13 @@ export class CesiumService {
           this.global_viewer.entities.add({
             parent: this.ellipsoids,
             name: ellipsoidNoFly.name,
-            position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), ellipsoidNoFly.altitude),
+            position: Cesium.Cartesian3.fromDegrees(Number(ellipsoidNoFly.longitude), Number(ellipsoidNoFly.latitude), Number(ellipsoidNoFly.altitude)),
             ellipsoid: {
               radii: new Cesium.Cartesian3(ellipsoidNoFly.longRadius, ellipsoidNoFly.latRadius, ellipsoidNoFly.altRadius),
               material: Cesium.Color.RED.withAlpha(0.5),
             }
           });
-          // console.log(ellipsoidNoFly)
+          //console.log(ellipsoidNoFly)
         }
       }
 
@@ -451,22 +448,10 @@ export class CesiumService {
         }
       )
     })
+  }
 
+  plotFlightRouteFull(departLong: number, departLat: number, arrLong: number, arrLat: number ) {
 
-    // If the location is new, fly to the point
-    // if (location_has_changed) {
-    //   this.global_viewer.camera.flyTo({
-    //     destination: Cesium.Cartesian3.fromDegrees(longitude, latitude, 1000000),
-    //     orientation: {
-    //       heading: Cesium.Math.toRadians(90.0),
-    //       pitch: Cesium.Math.toRadians(0.0)
-    //     }
-    //   });
-    // }
-
-    // if (location_has_changed) {
-    //   this.global_viewer.flyTo(point);
-    // }
   }
 
 

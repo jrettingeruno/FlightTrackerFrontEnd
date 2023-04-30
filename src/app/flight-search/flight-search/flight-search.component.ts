@@ -20,7 +20,7 @@ export class FlightSearchComponent implements OnInit, OnChanges {
   constructor(private httpClient: HttpClient) {}
 
   ngOnInit(): void {
-    this.httpClient.get<string>('http://34.198.166.4/hello_world').subscribe( data  => {
+    this.httpClient.get<string>('http://localhost/hello_world').subscribe( data  => {
       console.log(data);
     })
     this.filteredFlightList = this.flightList;

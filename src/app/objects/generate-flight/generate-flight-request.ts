@@ -1,14 +1,14 @@
 
 export class GenerateFlightRequest {
 
-    public airlineName: string;
-    public flightIcao: string;
-    public longitude: number;
-    public latitude: number;
-    public altitude: number;
-    public longitudeChange: number;
-    public latitudeChange: number;
-    public altitudeChange: number;
+    private airlineName: string;
+    private flightIcao: string;
+    private longitude: number;
+    private latitude: number;
+    private altitude: number;
+    private longitudeChange: number;
+    private latitudeChange: number;
+    private altitudeChange: number;
     
     public getAirlineName(): string {
         return this.airlineName;

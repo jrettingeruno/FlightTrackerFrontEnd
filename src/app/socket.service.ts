@@ -24,13 +24,19 @@ export class SocketService {
         console.log(data)
         console.log(data.body)
 
+        let jsonDataObj = JSON.parse(data.body);
+        if (jsonDataObj.error) {
+          console.log("An error response was received from the Producer. Nothing will be updated. Error Details: " + jsonDataObj.error)
+          //TODO:Create an error response dialog or something like that
+          return;
+        }
+
         interface flightData {
           latitude: number;
           longitude: number;
           altitude: number;
         }
-
-        let jsonDataObj = JSON.parse(data.body);
+        
 
         let airlineName: string = jsonDataObj.airline;
         let flightIcao: string = jsonDataObj.icao;

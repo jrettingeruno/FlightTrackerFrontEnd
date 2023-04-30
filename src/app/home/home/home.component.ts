@@ -27,7 +27,7 @@ export class HomeComponent implements OnInit {
   getNoFlyZoneResponse: GetNoFlyZonesResponse;
 
   ngOnInit() {
-    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+    this.httpClient.get<GetNoFlyZonesResponse>('http://localhost:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
 
       console.log('ELLIPSOID NO FLY ZONES')
