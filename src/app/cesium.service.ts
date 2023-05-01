@@ -139,7 +139,7 @@ export class CesiumService {
     let queryParams = new HttpParams();
     queryParams = queryParams.append("zoneName", zoneName);
 
-    this.httpClient.get<string>('http://localhost:9093/deleteNoFlyZone', {
+    this.httpClient.get<string>('http://34.198.166.4:9093/deleteNoFlyZone', {
       headers: this.httpHeaders,
       params: queryParams
     }).subscribe(response => {
@@ -167,7 +167,7 @@ export class CesiumService {
     queryParams = queryParams.append("altitude", altitude);
 
 
-    return this.httpClient.get<getNoFlyZonesConflictResponse>('http://localhost:9093/getInNoFlyZone', {
+    return this.httpClient.get<getNoFlyZonesConflictResponse>('http://34.198.166.4:9093/getInNoFlyZone', {
       headers: this.httpHeaders,
       params: queryParams
     }).pipe(tap(response => {
@@ -182,7 +182,7 @@ export class CesiumService {
     queryParams = queryParams.append("longitude", longitude);
     queryParams = queryParams.append("latitude", latitude);
 
-    return this.httpClient.get<GetFlightLocationResponse>('http://localhost:9093/getFlightLocation', {
+    return this.httpClient.get<GetFlightLocationResponse>('http://34.198.166.4:9093/getFlightLocation', {
       headers: this.httpHeaders,
       params: queryParams
     }).pipe(tap(response => {
@@ -244,7 +244,7 @@ export class CesiumService {
     console.log("Loading No FlyZones")
     
     
-    this.httpClient.get<GetNoFlyZonesResponse>('http://localhost:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
+    this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
       // console.log("Response:" + this.getNoFlyZoneResponse);
 

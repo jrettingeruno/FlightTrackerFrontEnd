@@ -59,7 +59,6 @@ export class CesiumComponentComponent implements OnInit {
   }
 
   findZone() {
-    console.log("HEHEHE" + this.zoneName)
     this.cesium.flyToNoFlyZone(this.zoneName);
   }
   

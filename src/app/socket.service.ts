@@ -16,7 +16,7 @@ export class SocketService {
   private stompClient: any;
 
   connectToConsumer() {
-    const socket = new SockJS('http://localhost:9093/consumer-socket');
+    const socket = new SockJS('http://34.198.166.4:9093/consumer-socket');
     this.stompClient = Stomp.Stomp.over(socket);
     this.stompClient.connect({}, (frame: any) => {
       console.log('Connected: ' + frame);
