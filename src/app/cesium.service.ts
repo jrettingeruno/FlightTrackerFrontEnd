@@ -8,6 +8,7 @@ import { getNoFlyZonesConflictResponse } from './objects/get-no-fly-zones-confli
 import { Observable, elementAt, tap } from 'rxjs';
 import { GetFlightLocationResponse } from './objects/get-flight-location-response/get-flight-location-response';
 import { FlightDetails } from './objects/flight-details/flight-details';
+import { MilitaryBase } from './objects/military-base/military-base';
 
 declare let Cesium: any;
 
@@ -51,6 +52,7 @@ export class CesiumService {
 
   ellipsoidNoFly: EllipsoidNoFly = new EllipsoidNoFly();
   rectangleNoFly: RectangleNoFly = new RectangleNoFly();
+  militaryBase: MilitaryBase = new MilitaryBase();
   polygonNoFly: PolygonNoFly = new PolygonNoFly();
   getNoFlyZoneResponse: GetNoFlyZonesResponse;
   getNoFlyZoneConflictResponse: getNoFlyZonesConflictResponse;
@@ -329,9 +331,39 @@ export class CesiumService {
       // Sandcastle.addToolbarButton("Toggle Ellipsoids", () => {
       //   this.ellipsoids.show = !this.ellipsoids.show
       // })
+      console.log('MILITARY BASE NO FLY ZONE')
+      console.log(this.getNoFlyZoneResponse.militaryBases)
+      for (const militaryBase of this.getNoFlyZoneResponse.militaryBases) {
+        console.log('JSON DATA')
+        let data = JSON.parse(militaryBase.geoJson);
+        console.log(data)
+  
+        let coords = data.features.geometry.coordinates.toString();
+        let coordArray = coords.split(',');
+  
+        for(let i = 0; i < coordArray.length; i++){
+          coordArray[i] = parseFloat(coordArray[i])
+        }
+  
+        this.global_viewer.entities.add({
+          name: militaryBase.name, //String Name
+          polygon: {
+            hierarchy: {
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights([
+                coordArray
+              ]),
+                        //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+            },
+            //extrudedHeight: militaryBase.minAltitude, //int minimum height
+            perPositionHeight: true,
+            material: Cesium.Color.RED.withAlpha(0.5),
+  
+          },
+        });  
+      }
+      
     })
   }
-
 
 
   flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string, flightDetails: any) {

@@ -1,13 +1,22 @@
 import { EllipsoidNoFly } from "../ellipsoid-no-fly/ellipsoid-no-fly";
 import { PolygonNoFly } from "../polygon-no-fly/polygon-no-fly";
 import { RectangleNoFly } from "../rectangle-no-fly/rectangle-no-fly";
+import { MilitaryBase } from '../military-base/military-base';
 
 export class GetNoFlyZonesResponse {
 
     public _ellipsoidNoFlyZones: EllipsoidNoFly[];
     private _rectangleNoFlyZones: RectangleNoFly[];
     private _polygonNoFlyZones: PolygonNoFly[];
-    
+    private _militaryNoFlyZones: MilitaryBase[];
+
+    public get militaryBases(): MilitaryBase[] {
+        return this._militaryNoFlyZones;
+    }
+
+    public set militaryBases(value: MilitaryBase[]) {
+        this._militaryNoFlyZones = value;
+    }
 
 
     public get ellipsoidNoFlyZones(): EllipsoidNoFly[] {
