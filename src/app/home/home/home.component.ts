@@ -30,6 +30,8 @@ export class HomeComponent implements OnInit {
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
 
+      console.log(data)
+
       console.log('ELLIPSOID NO FLY ZONES')
       for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
         console.log(ellipsoidNoFly)
