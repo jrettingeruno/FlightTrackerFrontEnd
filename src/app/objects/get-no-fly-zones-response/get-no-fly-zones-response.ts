@@ -10,11 +10,11 @@ export class GetNoFlyZonesResponse {
     private _polygonNoFlyZones: PolygonNoFly[];
     private _militaryNoFlyZones: MilitaryBase[];
 
-    public get militaryBases(): MilitaryBase[] {
+    public get militaryNoFlyZones(): MilitaryBase[] {
         return this._militaryNoFlyZones;
     }
 
-    public set militaryBases(value: MilitaryBase[]) {
+    public set militaryNoFlyZones(value: MilitaryBase[]) {
         this._militaryNoFlyZones = value;
     }
 

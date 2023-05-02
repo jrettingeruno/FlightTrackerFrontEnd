@@ -248,6 +248,8 @@ export class CesiumService {
     
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
+      console.log(data)
+      console.log(this.getNoFlyZoneResponse.militaryNoFlyZones)
       // console.log("Response:" + this.getNoFlyZoneResponse);
 
       console.log('ELLIPSOID NO FLY ZONES')
@@ -332,8 +334,8 @@ export class CesiumService {
       //   this.ellipsoids.show = !this.ellipsoids.show
       // })
       console.log('MILITARY BASE NO FLY ZONE')
-      console.log(this.getNoFlyZoneResponse.militaryBases)
-      for (const militaryBase of this.getNoFlyZoneResponse.militaryBases) {
+      console.log(this.getNoFlyZoneResponse)
+      for (const militaryBase of this.getNoFlyZoneResponse.militaryNoFlyZones) {
         console.log('JSON DATA')
         let data = JSON.parse(militaryBase.geoJson);
         console.log(data)
