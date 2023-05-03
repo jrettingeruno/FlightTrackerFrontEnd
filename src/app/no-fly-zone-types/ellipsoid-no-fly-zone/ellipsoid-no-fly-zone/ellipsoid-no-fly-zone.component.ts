@@ -106,11 +106,16 @@ constructor(
     //WILL MAKE HTTP CALL TO ADD NO FLY ZONE
     this.httpClient.post<string>('http://34.198.166.4:9093/addNoFlyZone/ellipsoid',
      this.ellipsoidNoFly, this.httpOptions).subscribe( data => {
-      console.log(data);
+      console.log("LOGGING ELLIPNO CUSTOM LGU" + data);
+      this.cesium.getAndLoadNoFlyZones();
+    },
+    error => {
+      console.log("LOGGING ELLIP CUSTOM ERROR")
+      this.cesium.getAndLoadNoFlyZones();
     })
 
     document.getElementById("closeDialog")?.click();
-    this.cesium.getAndLoadNoFlyZones();
+    
 
   }
 

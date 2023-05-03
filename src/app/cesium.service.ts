@@ -7,7 +7,6 @@ import { GetNoFlyZonesResponse } from './objects/get-no-fly-zones-response/get-n
 import { getNoFlyZonesConflictResponse } from './objects/get-no-fly-zones-conflict-response/get-no-fly-zones-conflict-response';
 import { Observable, elementAt, tap } from 'rxjs';
 import { GetFlightLocationResponse } from './objects/get-flight-location-response/get-flight-location-response';
-import { FlightDetails } from './objects/flight-details/flight-details';
 import { MilitaryBase } from './objects/military-base/military-base';
 
 declare let Cesium: any;
@@ -65,6 +64,7 @@ export class CesiumService {
   ellipsoids: any;
   rectangles: any;
   polygons: any;
+  militaryBases: any;
 
 
   public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string, flightDetails: any): void {
@@ -88,17 +88,18 @@ export class CesiumService {
         timeline: false
       })
       this.entities = this.global_viewer.entities;
-    this.ellipsoids = this.entities.add(new Cesium.Entity());
-    this.rectangles = this.entities.add(new Cesium.Entity());
-    this.polygons = this.entities.add(new Cesium.Entity());
+      this.ellipsoids = this.entities.add(new Cesium.Entity());
+      this.rectangles = this.entities.add(new Cesium.Entity());
+      this.polygons = this.entities.add(new Cesium.Entity());
+      this.militaryBases = this.entities.add(new Cesium.Entity());
     }
-    
+
 
 
   }
 
   public hidePolygonNoFlys() {
-    
+
     this.polygons.show = !this.polygons.show
   }
 
@@ -108,6 +109,10 @@ export class CesiumService {
 
   public hideEllipsoidNoFlyz() {
     this.ellipsoids.show = !this.ellipsoids.show
+  }
+
+  public hideMilitaryBasesNoFlyz() {
+    this.militaryBases.show = !this.militaryBases.show;
   }
 
   public hideSelected() {
@@ -152,11 +157,19 @@ export class CesiumService {
   public flyToNoFlyZone(zoneName: string) {
 
     this.global_viewer.entities.values.forEach((element: any) => {
-        if(element.name == zoneName) {
-          this.global_viewer.zoomTo(element)
-        }
+      if (element.name == zoneName) {
+        this.global_viewer.zoomTo(element)
+      }
     })
-    
+
+  }
+
+  public findFlight(flightIcao: string) {
+    this.global_viewer.entities.values.forEach((element: any) => {
+      if(element.id == ("Flight ICAO: " + flightIcao)) {
+        this.global_viewer.zoomTo(element)
+      }
+    })
   }
 
 
@@ -244,15 +257,12 @@ export class CesiumService {
 
   public getAndLoadNoFlyZones(): void {
     console.log("Loading No FlyZones")
-    
-    
+
+
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
       this.getNoFlyZoneResponse = data;
-      console.log(data)
-      console.log(this.getNoFlyZoneResponse.militaryNoFlyZones)
-      // console.log("Response:" + this.getNoFlyZoneResponse);
 
-      console.log('ELLIPSOID NO FLY ZONES')
+      //console.log('ELLIPSOID NO FLY ZONES')
       for (const ellipsoidNoFly of this.getNoFlyZoneResponse.ellipsoidNoFlyZones) {
         var contains: boolean = false;
         this.global_viewer.entities.values.forEach((element: any) => {
@@ -275,7 +285,7 @@ export class CesiumService {
         }
       }
 
-      console.log('RECTANGLE NO FLY ZONE')
+      //console.log('RECTANGLE NO FLY ZONE')
       for (const rectangleNoFly of this.getNoFlyZoneResponse.rectangleNoFlyZones) {
         var contains: boolean = false;
         this.global_viewer.entities.values.forEach((element: any) => {
@@ -292,7 +302,7 @@ export class CesiumService {
               rotation: Cesium.Math.toRadians(Number(rectangleNoFly.rotationDegree)), // .toRadians( rotation value )
               extrudedHeight: Number(rectangleNoFly.minAltitude),                  //Minimum Height
               height: Number(rectangleNoFly.maxAltitude),
-              material: Cesium.Color.fromRandom({ alpha: 0.5 }),
+              material: Cesium.Color.TEAL.withAlpha(0.5),
               coordinates: Cesium.Rectangle.fromDegrees(Number(rectangleNoFly.westLongDegree), Number(rectangleNoFly.southLatDegree), Number(rectangleNoFly.eastLongDegree), Number(rectangleNoFly.northLatDegree)),
             },
           });
@@ -300,7 +310,7 @@ export class CesiumService {
         }
       }
 
-      console.log('POLYGON NO FLY ZONE')
+      //console.log('POLYGON NO FLY ZONE')
       for (const polygonNoFly of this.getNoFlyZoneResponse.polygonNoFlyZones) {
         var contains: boolean = false;
         this.global_viewer.entities.values.forEach((element: any) => {
@@ -323,49 +333,52 @@ export class CesiumService {
               },
               extrudedHeight: polygonNoFly.minAltitude, //int minimum height
               perPositionHeight: true,
-              material: Cesium.Color.RED.withAlpha(0.5),
+              material: Cesium.Color.VIOLET.withAlpha(0.5),
 
             },
           });
-          // console.log(polygonNoFly)
+
         }
       }
-      // Sandcastle.addToolbarButton("Toggle Ellipsoids", () => {
-      //   this.ellipsoids.show = !this.ellipsoids.show
-      // })
-      console.log('MILITARY BASE NO FLY ZONE')
-      console.log(this.getNoFlyZoneResponse)
+
+      //console.log("MILITARY NO FLY ZONES")
       for (const militaryBase of this.getNoFlyZoneResponse.militaryNoFlyZones) {
-        console.log('JSON DATA')
         let data = JSON.parse(militaryBase.geoJson);
-        console.log(data)
+
+        var contains: boolean = false;
+        this.global_viewer.entities.values.forEach((element: any) => {
+          if (element.name == militaryBase.name) {
+            contains = true;
+          }
+        });
 
         let coords = data.coordinates.toString();
         let coordArray = coords.split(',');
 
-        for(let i = 0; i < coordArray.length; i++){
+        for (let i = 0; i < coordArray.length; i++) {
           coordArray[i] = parseFloat(coordArray[i])
         }
 
-        console.log(coordArray)
-  
-        this.global_viewer.entities.add({
-          name: militaryBase.name, //String Name
-          polygon: {
-            hierarchy: {
-              positions: Cesium.Cartesian3.fromDegreesArray(
-                coordArray
-              ),
-                        //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+        if (!contains) {
+          this.global_viewer.entities.add({
+            parent: this.militaryBases,
+            name: militaryBase.name, //String Name
+            polygon: {
+              hierarchy: {
+                positions: Cesium.Cartesian3.fromDegreesArray(
+                  coordArray
+                ),
+                //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
+              },
+              extrudedHeight: 30000,//int minimum height
+              perPositionHeight: true,
+              material: Cesium.Color.SALMON.withAlpha(0.5),
+
             },
-            extrudedHeight: 30000,//int minimum height
-            perPositionHeight: true,
-            material: Cesium.Color.RED.withAlpha(0.5),
-  
-          },
-        });  
+          });
+        }
       }
-      
+
     })
   }
 
@@ -422,36 +435,33 @@ export class CesiumService {
     // If conflict response string is not empty add warning description to object 
     var splitStr = flightLabel.split("-");
 
-    var point = this.global_viewer.entities.add({
-      name: "Flight ICAO: " + splitStr[1],
-      position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
-      point: {
-        color: Cesium.Color.GREEN,
-        pixelSize: 16,
-      },
+    // var point = this.global_viewer.entities.add({
+    //   name: "Flight ICAO: " + splitStr[1],
+    //   position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
+    //   point: {
+    //     color: Cesium.Color.GREEN,
+    //     pixelSize: 16,
+    //   },
 
 
-    });
+    // });
 
     if (!this.global_viewer.entities.getById("Flight ICAO: " + splitStr[1])) {
       this.global_viewer.camera.moveEnd.addEventListener(() => this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], 0, 0, 0));
     }
-    if (location_has_changed) {
-      this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], longitude, latitude, altitude);
-    }
-    if (prev_entity_point != undefined && prev_entity_point?.length > 0) {
-      this.global_viewer.entities.remove(prev_entity_point.pop())
-    }
+    
+    // if (prev_entity_point != undefined && prev_entity_point?.length > 0) {
+    //   this.global_viewer.entities.remove(prev_entity_point.pop())
+    // }
 
-    if (prev_entity_point != undefined && prev_entity_point.length <= 0) {
-      prev_entity_point.push(point);
-    }
+    // if (prev_entity_point != undefined && prev_entity_point.length <= 0) {
+    //   prev_entity_point.push(point);
+    // }
 
 
     // Making a line with the stored coordinates
     if (location_has_changed) {
       this.global_viewer.entities.add({
-        parent: point,
         name: flightLabel,
         polyline: {
           positions: Cesium.Cartesian3.fromDegreesArrayHeights(current_coord_arr),
@@ -461,32 +471,45 @@ export class CesiumService {
         },
       });
     }
+    if (location_has_changed) {
+      this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], longitude, latitude, altitude).then(wait => {
+        this.getFlightLocation(longitude, latitude, flightLabel).subscribe(response => {
+      
+          this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
+            data => {
+              var point: any;
+              this.global_viewer.entities.values.forEach((element: any) => {
+                if (element.id == ("Flight ICAO: " + splitStr[1])) {
+                  point = element;
+                }
+              })
+              //console.log("CONFILCIT RESPONSE STRING: " + conflictResponse);
+              if (data.inConflict) {
+                point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
+                For Airline: ' + splitStr[0] + '</p><br> Flight location is over ' + response.location;
+                this.global_viewer.selectedEntity = point;
+                point.billboard = {
+                  image: "/assets/images/WarningLabel.png",
+                  verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                  pixelOffset: new Cesium.Cartesian2(0, 25),
+                  width: 57,
+                  height: 15,
+                };
+              } else {
+                point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is over ' + response.location +'<br>' +
+                'Airline: ' + splitStr[0];
 
-    this.getFlightLocation(longitude, latitude, flightLabel).subscribe(response => {
-
-      this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
-        data => {
-          console.log("CONFILCIT RESPONSE STRING: " + conflictResponse);
-          if (data.inConflict) {
-            point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
-            For Airline: ' + splitStr[0] + '</p><br> Flight location is over ' + response.location;
-            this.global_viewer.selectedEntity = point;
-            point.billboard = {
-              image: "/assets/images/WarningLabel.png",
-              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-              pixelOffset: new Cesium.Cartesian2(0, 25),
-              width: 57,
-              height: 15,
-            };
-          } else {
-            point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is over ' + response.location;
-          }
-        }
-      )
-    })
+                point.billboard = undefined;
+              }
+            }
+          )
+        })
+      });
+    }
+    
   }
 
-  plotFlightRouteFull(departLong: number, departLat: number, arrLong: number, arrLat: number ) {
+  plotFlightRouteFull(departLong: number, departLat: number, arrLong: number, arrLat: number) {
 
   }
 

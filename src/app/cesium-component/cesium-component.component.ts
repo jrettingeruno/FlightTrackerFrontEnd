@@ -14,6 +14,7 @@ export class CesiumComponentComponent implements OnInit {
   
   id!: string | null;
   zoneName: string;
+  flightIcao: string;
 
 
   constructor(
@@ -46,6 +47,10 @@ export class CesiumComponentComponent implements OnInit {
     this.cesium.hidePolygonNoFlys();
   }
 
+  hideMilitaryBases() {
+    this.cesium.hideMilitaryBasesNoFlyz();
+  }
+
   hideSelected() {
     this.cesium.hideSelected();
   }
@@ -60,6 +65,10 @@ export class CesiumComponentComponent implements OnInit {
 
   findZone() {
     this.cesium.flyToNoFlyZone(this.zoneName);
+  }
+
+  findFlight() {
+    this.cesium.findFlight(this.flightIcao);
   }
   
 
