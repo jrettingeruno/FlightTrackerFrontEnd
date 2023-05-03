@@ -24,6 +24,8 @@
                     <br>
                     <button mat-button class="menu-button" (click)="drawer.toggle();hidePoly()">Un/Hide All Custom Polygons</button>
                     <br>
+                    <button mat-button class="menu-button" (click)="drawer.toggle();hideMilitaryBases()">Un/Hide All Military No Fly Zones</button>
+                    <br>
                     <button mat-button class="menu-button" (click)="drawer.toggle(); hideSelected()">Hide Selected Entity</button>
                     <br>
                     <button mat-button class="menu-button" (click)="drawer.toggle(); reset()">Reset Entities</button>
@@ -35,6 +37,12 @@
                         <mat-label>Zone Name</mat-label>
                         <input matInput [(ngModel)]="zoneName">
                         <button mat-button class="menu-button" (click)="findZone()">Find No Fly Zone</button>
+                    </mat-form-field>
+                    <br>
+                    <mat-form-field>
+                        <mat-label>Flight ICAO</mat-label>
+                        <input matInput [(ngModel)]="flightIcao">
+                        <button mat-button class="menu-button" (click)="findFlight()">Find Flight</button>
                     </mat-form-field>
 
                 </mat-drawer>
