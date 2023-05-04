@@ -46,7 +46,7 @@ import { NoFlyZoneGenerateDialog } from './no-fly-zone-generate-dialog/no-fly-zo
     CesiumShowcaseComponent,
     NoFlyZoneSubmittedComponent,
     FlightGenerateDialog,
-    NoFlyZoneGenerateDialog
+    NoFlyZoneGenerateDialog,
   ],
   imports: [
     BrowserModule,
@@ -64,7 +64,7 @@ import { NoFlyZoneGenerateDialog } from './no-fly-zone-generate-dialog/no-fly-zo
     MatButtonModule,
     MatDialogModule,
     MatInputModule,
-    MatCheckboxModule
+    MatCheckboxModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

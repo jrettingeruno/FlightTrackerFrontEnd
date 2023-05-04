@@ -23,6 +23,7 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
   gen_longitude: number;
   gen_latitude: number;
   gen_altitude: number;
+  flight_id_map: Map<string, string>;  
 
 
   httpOptions = {
@@ -44,13 +45,19 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
     private cesium: CesiumService) { }
 
   getLiveFlightIcaos(): void {
+    this.flight_id_map = new Map<string,string>();
     this.httpClient.get<string>('http://34.198.166.4/flighticao/getLive', this.httpOptions).subscribe(data => {
       console.log(JSON.parse(JSON.stringify(data)).icaos)
 
-      let jsonIcaos = JSON.parse(JSON.stringify(data)).icaos;
-      if (jsonIcaos) {
-        this.flight_icao_list = jsonIcaos.split(",");
+      let jsonData = JSON.parse(JSON.stringify(data));
+
+      let jsonIdents = jsonData.idents;
+
+
+      if (jsonIdents) {
+        this.flight_icao_list = jsonIdents.split(",");
       }
+
     })
 
   }
@@ -71,7 +78,7 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
   getFlightInfo(): void {
     console.log("getting Flight Info")
-    this.httpClient.get<string>('http://34.198.166.4/flighticao/' + this.search, this.httpOptions).subscribe(data => {
+    this.httpClient.get<string>('http://34.198.166.4/flightfaid/' + this.search, this.httpOptions).subscribe(data => {
       console.log(data);
     })
     this.are_flights_visible = false;
