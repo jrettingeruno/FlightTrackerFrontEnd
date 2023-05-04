@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, LOCALE_ID } from '@angular/core';
 import { RectangleNoFly } from './objects/rectangle-no-fly/rectangle-no-fly';
 import { PolygonNoFly } from './objects/polygon-no-fly/polygon-no-fly';
 import { EllipsoidNoFly } from './objects/ellipsoid-no-fly/ellipsoid-no-fly';
@@ -8,6 +8,7 @@ import { getNoFlyZonesConflictResponse } from './objects/get-no-fly-zones-confli
 import { Observable, elementAt, tap } from 'rxjs';
 import { GetFlightLocationResponse } from './objects/get-flight-location-response/get-flight-location-response';
 import { MilitaryBase } from './objects/military-base/military-base';
+import { FlightDataFa_Id, FlightDataIdent, Operator } from './objects/aero-api/flight-data';
 
 declare let Cesium: any;
 
@@ -46,6 +47,17 @@ export class CesiumService {
 
   })
 
+  aeroHttpHeaders = new HttpHeaders({
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE',
+    'key': 'x-apikey',
+    'value': 'Lrpf86qKGBqgB8xwBvsFK0dMPhcqByAj',
+
+  })
+
   constructor(public httpClient: HttpClient) {
   }
 
@@ -65,16 +77,19 @@ export class CesiumService {
   rectangles: any;
   polygons: any;
   militaryBases: any;
+  aeroFlightIdentResponse: FlightDataIdent;
+  aeroFlightFaIdResponse: FlightDataFa_Id;
+  aeroOperatorResponse: Operator;
 
 
-  public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightLabel: string, flightDetails: any): void {
+  public updateFlightsAndZones(div: string, longitude: number, latitude: number, altitude: number, flightIdent_Icao: string, airlineName: string | undefined, flightFaIdRespObj: FlightDataFa_Id | undefined): void {
     // Sets up cesium viewer
     this.setUpViewer(div);
 
     // Load all no custom fly zones from database into cesium
     this.getAndLoadNoFlyZones();
     // Plots new flight point
-    this.flyToAndPlotPoint(longitude, latitude, altitude, flightLabel, flightDetails);
+    this.flyToAndPlotPoint(longitude, latitude, altitude, flightIdent_Icao, airlineName, flightFaIdRespObj);
 
 
   }
@@ -88,17 +103,19 @@ export class CesiumService {
         timeline: false
       })
       this.entities = this.global_viewer.entities;
-      this.ellipsoids = this.entities.add(new Cesium.Entity());
-      this.rectangles = this.entities.add(new Cesium.Entity());
-      this.polygons = this.entities.add(new Cesium.Entity());
+        this.ellipsoids = this.entities.add(new Cesium.Entity());
+        this.rectangles = this.entities.add(new Cesium.Entity());
+        this.polygons = this.entities.add(new Cesium.Entity());
       this.militaryBases = this.entities.add(new Cesium.Entity());
     }
+
 
 
 
   }
 
   public hidePolygonNoFlys() {
+
 
     this.polygons.show = !this.polygons.show
   }
@@ -160,7 +177,11 @@ export class CesiumService {
       if (element.name == zoneName) {
         this.global_viewer.zoomTo(element)
       }
+      if (element.name == zoneName) {
+        this.global_viewer.zoomTo(element)
+      }
     })
+
 
   }
 
@@ -257,6 +278,8 @@ export class CesiumService {
 
   public getAndLoadNoFlyZones(): void {
     console.log("Loading No FlyZones")
+
+
 
 
     this.httpClient.get<GetNoFlyZonesResponse>('http://34.198.166.4:9093/get-no-fly-zones', this.httpOptions).subscribe(data => {
@@ -383,19 +406,70 @@ export class CesiumService {
   }
 
 
-  flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightLabel: string, flightDetails: any) {
-    console.log("Inside Fly to and Plot Point" + flightDetails.flight)
+  flyToAndPlotPoint(longitude: number, latitude: number, altitude: number, flightIdent_Icao: string, airlineName: string | undefined, flightFaIdRespObj: FlightDataFa_Id | undefined) {
+    //console.log("Inside Fly to and Plot Point" + flightDetails.flight)
+    if (flightFaIdRespObj) {
+      this.aeroFlightFaIdResponse = flightFaIdRespObj;
+    }
+
+    let airlineNmVal = airlineName || "";
+    //let waypoints: number[] | undefined;
+    //let current_coord_arr: number[] | undefined;
+
+    if (this.aeroFlightFaIdResponse) {
+      this.httpClient.get<FlightDataIdent>('http://34.198.166.4/flightident/' + flightIdent_Icao, this.httpOptions).subscribe(flightResponse => {
+        this.aeroFlightIdentResponse = flightResponse;
+        if (this.aeroFlightIdentResponse) {
+          //console.log(this.aeroFlightIdentResponse)
+          // if (this.aeroFlightFaIdResponse.waypoints && this.aeroFlightFaIdResponse.waypoints.length > 0) {
+          //   let count = 0;
+          //   let prev_coord: number;
+          //   for (var coordinate of this.aeroFlightFaIdResponse.waypoints) {
+          //     prev_coord = coordinate;
+          //     count++;
+          //     if (count == 2) {
+          //       waypoints?.push(coordinate);
+          //       waypoints?.push(prev_coord);
+          //       waypoints?.push(altitude);
+          //       count = 0;
+          //       prev_coord = 0;
+          //     }
+          //   }
+          //   console.log("Waypoints provided");
+
+          //   current_coord_arr = this.global_coord_map.get(flightIdent_Icao);
+          //   if (waypoints && current_coord_arr && waypoints.length > 0) {
+          //     if (waypoints[1] !== current_coord_arr[0]) {
+          //       console.log("adding waypoints")
+          //       waypoints.push(...current_coord_arr);
+          //       current_coord_arr = waypoints;
+          //     }
+          //   }
+          // }
+
+          this.httpClient.get<Operator>('http://34.198.166.4/operator/' + this.aeroFlightIdentResponse.operator, this.httpOptions).subscribe(operatorResponse => {
+            this.aeroOperatorResponse = operatorResponse;
+            airlineNmVal = operatorResponse.name;
+            console.log(operatorResponse)
+            console.log('airline: ' + airlineNmVal)
+          })
+        }
+      });
+    }
+
     let conflictResponse: string = "";
-    if (!this.global_coord_map.has(flightLabel)) {
-      this.global_coord_map.set(flightLabel, []);
+
+
+    if (!this.global_coord_map.has(flightIdent_Icao)) {
+      this.global_coord_map.set(flightIdent_Icao, []);
     }
-    if (!this.pointsMap.has(flightLabel)) {
-      this.pointsMap.set(flightLabel, []);
+    if (!this.pointsMap.has(flightIdent_Icao)) {
+      this.pointsMap.set(flightIdent_Icao, []);
     }
 
 
-    let current_coord_arr: number[] | undefined = this.global_coord_map.get(flightLabel);
-    let prev_entity_point: any[] | undefined = this.pointsMap.get(flightLabel);
+    let current_coord_arr = this.global_coord_map.get(flightIdent_Icao);
+    let prev_entity_point: any[] | undefined = this.pointsMap.get(flightIdent_Icao);
     let prevVals: number[] | undefined;
     let prevLong: number = 0;
     let prevLat: number = 0;
@@ -433,7 +507,7 @@ export class CesiumService {
 
     // Adding a point to mark location
     // If conflict response string is not empty add warning description to object 
-    var splitStr = flightLabel.split("-");
+    //var splitStr = flightIdent_Icao.split("-");
 
     // var point = this.global_viewer.entities.add({
     //   name: "Flight ICAO: " + splitStr[1],
@@ -446,8 +520,8 @@ export class CesiumService {
 
     // });
 
-    if (!this.global_viewer.entities.getById("Flight ICAO: " + splitStr[1])) {
-      this.global_viewer.camera.moveEnd.addEventListener(() => this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], 0, 0, 0));
+    if (!this.global_viewer.entities.getById("Flight ICAO: " + flightIdent_Icao)) {
+      this.global_viewer.camera.moveEnd.addEventListener(() => this.makePlane(this.global_viewer, "Flight ICAO: " + flightIdent_Icao, 0, 0, 0));
     }
     
     // if (prev_entity_point != undefined && prev_entity_point?.length > 0) {
@@ -462,7 +536,7 @@ export class CesiumService {
     // Making a line with the stored coordinates
     if (location_has_changed) {
       this.global_viewer.entities.add({
-        name: flightLabel,
+        name: flightIdent_Icao,
         polyline: {
           positions: Cesium.Cartesian3.fromDegreesArrayHeights(current_coord_arr),
           width: 10,
@@ -472,21 +546,21 @@ export class CesiumService {
       });
     }
     if (location_has_changed) {
-      this.makePlane(this.global_viewer, "Flight ICAO: " + splitStr[1], longitude, latitude, altitude).then(wait => {
-        this.getFlightLocation(longitude, latitude, flightLabel).subscribe(response => {
+      this.makePlane(this.global_viewer, "Flight ICAO: " + flightIdent_Icao, longitude, latitude, altitude).then(wait => {
+        this.getFlightLocation(longitude, latitude, flightIdent_Icao).subscribe(response => {
       
-          this.checkInNoFly(longitude, latitude, altitude, flightLabel).subscribe(
+          this.checkInNoFly(longitude, latitude, altitude, flightIdent_Icao).subscribe(
             data => {
               var point: any;
               this.global_viewer.entities.values.forEach((element: any) => {
-                if (element.id == ("Flight ICAO: " + splitStr[1])) {
+                if (element.id == ("Flight ICAO: " + flightIdent_Icao)) {
                   point = element;
                 }
               })
-              //console.log("CONFILCIT RESPONSE STRING: " + conflictResponse);
+              //console.log("CONFLICT RESPONSE STRING: " + conflictResponse);
               if (data.inConflict) {
-                point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
-                For Airline: ' + splitStr[0] + '</p><br> Flight location is over ' + response.location;
+                point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
+                For Airline: ' + airlineNmVal + '</p><br> Flight location is over ' + response.location;
                 this.global_viewer.selectedEntity = point;
                 point.billboard = {
                   image: "/assets/images/WarningLabel.png",
@@ -496,8 +570,8 @@ export class CesiumService {
                   height: 15,
                 };
               } else {
-                point.description = '<p> Flight ICAO: ' + splitStr[1] + ' is over ' + response.location +'<br>' +
-                'Airline: ' + splitStr[0];
+                point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is over ' + response.location +'<br>' +
+                'Airline: ' + airlineName;
 
                 point.billboard = undefined;
               }
