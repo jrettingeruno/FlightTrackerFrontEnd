@@ -51,11 +51,11 @@ export class CesiumShowcaseComponent implements OnInit, OnChanges {
 
       let jsonData = JSON.parse(JSON.stringify(data));
 
-      let jsonIdents = jsonData.idents;
+      let jsonFaIds = jsonData.faids;
 
 
-      if (jsonIdents) {
-        this.flight_icao_list = jsonIdents.split(",");
+      if (jsonFaIds) {
+        this.flight_icao_list = jsonFaIds.split(",");
       }
 
     })
