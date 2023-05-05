@@ -10,6 +10,7 @@
             <button mat-raised-button class="functionButt" (click)="getLiveFlightIcaos()">Refresh Live</button>
             <button mat-raised-button class="functionButt" (click)="generateMockFlight()">Generate Mock Flight</button>
             <button mat-raised-button class="functionButt" (click)="addNoFlyZone()">Add No Fly Zone</button>
+            <button mat-raised-button class="functionButt" (click)="getTrackedFlights()">Show/Hide Tracked Flights</button>
         </form>
     </div>
 </div>
@@ -22,6 +23,16 @@
             <button mat-button class="flight-select mat-elevation-z8" (click)="setFlightIcao(flight)">
                 Select
             </button>
+        </div>
+    </div>
+</div>
+
+<div class="main" [hidden]="!are_tracked_visible">
+    <p>Flights Currently Being Tracked</p>
+    <div *ngFor="let flight of tracked_flight_list">
+        <div class="flight-option mat-elevation-z8">
+            <span class="flight-text">{{flight}}</span>
+            <button mat-button class="flight-select mat-elevation-z8" (click)="findFlight(flight)">Find</button>
         </div>
     </div>
 </div>
