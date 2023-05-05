@@ -90,7 +90,7 @@ export class CesiumService {
     this.getAndLoadNoFlyZones();
     // Plots new flight point
     this.flyToAndPlotPoint(longitude, latitude, altitude, flightIdent_Icao, airlineName, flightFaIdRespObj);
-
+    console.log("------- " + flightFaIdRespObj?.destination.name)
 
   }
 
@@ -103,9 +103,9 @@ export class CesiumService {
         timeline: false
       })
       this.entities = this.global_viewer.entities;
-        this.ellipsoids = this.entities.add(new Cesium.Entity());
-        this.rectangles = this.entities.add(new Cesium.Entity());
-        this.polygons = this.entities.add(new Cesium.Entity());
+      this.ellipsoids = this.entities.add(new Cesium.Entity());
+      this.rectangles = this.entities.add(new Cesium.Entity());
+      this.polygons = this.entities.add(new Cesium.Entity());
       this.militaryBases = this.entities.add(new Cesium.Entity());
     }
 
@@ -187,12 +187,20 @@ export class CesiumService {
 
   public findFlight(flightIcao: string) {
     this.global_viewer.entities.values.forEach((element: any) => {
-      if(element.id == ("Flight ICAO: " + flightIcao)) {
+      if (element.id == ("Flight ICAO: " + flightIcao)) {
         this.global_viewer.zoomTo(element)
       }
     })
   }
 
+  public getTrackedFlights(): string[] {
+    var tracked_flights: string[] = [];
+
+    this.global_coord_map.forEach((value: number[], key: string) => {
+      tracked_flights.push(key);
+    })
+    return tracked_flights;
+  }
 
 
   private checkInNoFly(longitude: number, latitude: number, altitude: number, flightLabel: string): Observable<getNoFlyZonesConflictResponse> {
@@ -416,47 +424,6 @@ export class CesiumService {
     //let waypoints: number[] | undefined;
     //let current_coord_arr: number[] | undefined;
 
-    if (this.aeroFlightFaIdResponse) {
-      this.httpClient.get<FlightDataIdent>('http://34.198.166.4/flightident/' + flightIdent_Icao, this.httpOptions).subscribe(flightResponse => {
-        this.aeroFlightIdentResponse = flightResponse;
-        if (this.aeroFlightIdentResponse) {
-          //console.log(this.aeroFlightIdentResponse)
-          // if (this.aeroFlightFaIdResponse.waypoints && this.aeroFlightFaIdResponse.waypoints.length > 0) {
-          //   let count = 0;
-          //   let prev_coord: number;
-          //   for (var coordinate of this.aeroFlightFaIdResponse.waypoints) {
-          //     prev_coord = coordinate;
-          //     count++;
-          //     if (count == 2) {
-          //       waypoints?.push(coordinate);
-          //       waypoints?.push(prev_coord);
-          //       waypoints?.push(altitude);
-          //       count = 0;
-          //       prev_coord = 0;
-          //     }
-          //   }
-          //   console.log("Waypoints provided");
-
-          //   current_coord_arr = this.global_coord_map.get(flightIdent_Icao);
-          //   if (waypoints && current_coord_arr && waypoints.length > 0) {
-          //     if (waypoints[1] !== current_coord_arr[0]) {
-          //       console.log("adding waypoints")
-          //       waypoints.push(...current_coord_arr);
-          //       current_coord_arr = waypoints;
-          //     }
-          //   }
-          // }
-
-          this.httpClient.get<Operator>('http://34.198.166.4/operator/' + this.aeroFlightIdentResponse.operator, this.httpOptions).subscribe(operatorResponse => {
-            this.aeroOperatorResponse = operatorResponse;
-            airlineNmVal = operatorResponse.name;
-            console.log(operatorResponse)
-            console.log('airline: ' + airlineNmVal)
-          })
-        }
-      });
-    }
-
     let conflictResponse: string = "";
 
 
@@ -501,36 +468,10 @@ export class CesiumService {
 
     }
 
-    console.log("Coordinate Objects");
-    console.log(this.global_coord_map);
-    console.log(current_coord_arr);
-
-    // Adding a point to mark location
-    // If conflict response string is not empty add warning description to object 
-    //var splitStr = flightIdent_Icao.split("-");
-
-    // var point = this.global_viewer.entities.add({
-    //   name: "Flight ICAO: " + splitStr[1],
-    //   position: Cesium.Cartesian3.fromDegrees(longitude, latitude, altitude),
-    //   point: {
-    //     color: Cesium.Color.GREEN,
-    //     pixelSize: 16,
-    //   },
-
-
-    // });
 
     if (!this.global_viewer.entities.getById("Flight ICAO: " + flightIdent_Icao)) {
       this.global_viewer.camera.moveEnd.addEventListener(() => this.makePlane(this.global_viewer, "Flight ICAO: " + flightIdent_Icao, 0, 0, 0));
     }
-    
-    // if (prev_entity_point != undefined && prev_entity_point?.length > 0) {
-    //   this.global_viewer.entities.remove(prev_entity_point.pop())
-    // }
-
-    // if (prev_entity_point != undefined && prev_entity_point.length <= 0) {
-    //   prev_entity_point.push(point);
-    // }
 
 
     // Making a line with the stored coordinates
@@ -547,40 +488,135 @@ export class CesiumService {
     }
     if (location_has_changed) {
       this.makePlane(this.global_viewer, "Flight ICAO: " + flightIdent_Icao, longitude, latitude, altitude).then(wait => {
-        this.getFlightLocation(longitude, latitude, flightIdent_Icao).subscribe(response => {
-      
-          this.checkInNoFly(longitude, latitude, altitude, flightIdent_Icao).subscribe(
-            data => {
-              var point: any;
-              this.global_viewer.entities.values.forEach((element: any) => {
-                if (element.id == ("Flight ICAO: " + flightIdent_Icao)) {
-                  point = element;
-                }
-              })
-              //console.log("CONFLICT RESPONSE STRING: " + conflictResponse);
-              if (data.inConflict) {
-                point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
-                For Airline: ' + airlineNmVal + '</p><br> Flight location is over ' + response.location;
-                this.global_viewer.selectedEntity = point;
-                point.billboard = {
-                  image: "/assets/images/WarningLabel.png",
-                  verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                  pixelOffset: new Cesium.Cartesian2(0, 25),
-                  width: 57,
-                  height: 15,
-                };
-              } else {
-                point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is over ' + response.location +'<br>' +
-                'Airline: ' + airlineName;
 
-                point.billboard = undefined;
-              }
+        if (this.aeroFlightFaIdResponse && flightFaIdRespObj != null) {
+          this.httpClient.get<FlightDataIdent>('http://localhost:9091/flightident/' + flightIdent_Icao, this.httpOptions).subscribe(flightResponse => {
+            this.aeroFlightIdentResponse = flightResponse;
+            if (this.aeroFlightIdentResponse) {
+              //console.log(this.aeroFlightIdentResponse)
+              // if (this.aeroFlightFaIdResponse.waypoints && this.aeroFlightFaIdResponse.waypoints.length > 0) {
+              //   let count = 0;
+              //   let prev_coord: number;
+              //   for (var coordinate of this.aeroFlightFaIdResponse.waypoints) {
+              //     prev_coord = coordinate;
+              //     count++;
+              //     if (count == 2) {
+              //       waypoints?.push(coordinate);
+              //       waypoints?.push(prev_coord);
+              //       waypoints?.push(altitude);
+              //       count = 0;
+              //       prev_coord = 0;
+              //     }
+              //   }
+              //   console.log("Waypoints provided");
+
+              //   current_coord_arr = this.global_coord_map.get(flightIdent_Icao);
+              //   if (waypoints && current_coord_arr && waypoints.length > 0) {
+              //     if (waypoints[1] !== current_coord_arr[0]) {
+              //       console.log("adding waypoints")
+              //       waypoints.push(...current_coord_arr);
+              //       current_coord_arr = waypoints;
+              //     }
+              //   }
+              // }
+
+              this.httpClient.get<Operator>('http://localhost:9091/operator/' + this.aeroFlightIdentResponse.operator, this.httpOptions).subscribe(operatorResponse => {
+                this.aeroOperatorResponse = operatorResponse;
+                airlineNmVal = operatorResponse.name;
+                // console.log(operatorResponse)
+                console.log('airline: ' + airlineNmVal)
+
+                this.getFlightLocation(longitude, latitude, flightIdent_Icao).subscribe(response => {
+
+                  this.checkInNoFly(longitude, latitude, altitude, flightIdent_Icao).subscribe(
+                    data => {
+                      var point: any;
+                      this.global_viewer.entities.values.forEach((element: any) => {
+                        if (element.id == ("Flight ICAO: " + flightIdent_Icao)) {
+                          point = element;
+                        }
+                      })
+                      //console.log("CONFLICT RESPONSE STRING: " + conflictResponse);
+                      if (data.inConflict) {
+                        point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
+                        For Airline: ' + airlineNmVal + '</p><br> Flight location is over ' + response.location
+                          + ' <br> Origin Place: ' + flightFaIdRespObj?.origin.name
+                          + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
+                          + ' <br> Destination: ' + flightFaIdRespObj?.destination.name
+                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position.groundspeed
+                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position.altitude_change
+                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position.heading
+                          + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
+                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position.timestamp + '</p>'
+
+                        this.global_viewer.selectedEntity = point;
+                        point.billboard = {
+                          image: "/assets/images/WarningLabel.png",
+                          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                          pixelOffset: new Cesium.Cartesian2(0, 35),
+                          width: 57,
+                          height: 15,
+                        };
+                      } else {
+                        point.description = '<p> Flight ICAO: ' + flightIdent_Icao + ' is over ' + response.location + '<br> ' +
+                          'Airline: ' + airlineNmVal
+                          + ' <br> Origin Place: ' + flightFaIdRespObj?.origin.name
+                          + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
+                          + ' <br> Destination: ' + flightFaIdRespObj?.destination.name
+                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position.groundspeed
+                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position.altitude_change
+                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position.heading
+                          + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
+                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position.timestamp + '</p>';
+
+                        point.billboard = undefined;
+                      }
+                    }
+                  )
+                })
+              })
+            } else {
+
             }
-          )
-        })
+          });
+        } else {
+          //If basically flight is generated 
+          this.getFlightLocation(longitude, latitude, flightIdent_Icao).subscribe(response => {
+
+            this.checkInNoFly(longitude, latitude, altitude, flightIdent_Icao).subscribe(
+              data => {
+                var point: any;
+                this.global_viewer.entities.values.forEach((element: any) => {
+                  if (element.id == ("Flight ICAO: " + flightIdent_Icao)) {
+                    point = element;
+                  }
+                })
+                //console.log("CONFLICT RESPONSE STRING: " + conflictResponse);
+                if (data.inConflict) {
+                  point.description = '<b>This is a mock generated flight</b><br><p> Flight ICAO: ' + flightIdent_Icao + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
+                      For Airline: ' + airlineName + '</p><br> Flight location is over ' + response.location;
+                  this.global_viewer.selectedEntity = point;
+                  point.billboard = {
+                    image: "/assets/images/WarningLabel.png",
+                    verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+                    pixelOffset: new Cesium.Cartesian2(0, 25),
+                    width: 57,
+                    height: 15,
+                  };
+                } else {
+                  point.description = '<b>This is a mock generated flight</b><br><p> Flight ICAO: ' + flightIdent_Icao + ' is over ' + response.location + '<br>' +
+                    'Airline: ' + airlineName;
+
+                  point.billboard = undefined;
+                }
+              }
+            )
+          })
+        }
+
       });
     }
-    
+
   }
 
   plotFlightRouteFull(departLong: number, departLat: number, arrLong: number, arrLat: number) {

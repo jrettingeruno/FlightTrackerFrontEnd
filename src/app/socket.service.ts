@@ -23,7 +23,7 @@ export class SocketService {
       console.log('Connected: ' + frame);
       this.stompClient.subscribe('/topic/liveCoords', (data: { body: string; }) => {
         console.log(data)
-        console.log(data.body)
+       // console.log(data.body)
 
         let jsonDataObj = JSON.parse(data.body);
         if (jsonDataObj.error) {
@@ -58,6 +58,7 @@ export class SocketService {
           flightIcao = jsonDataObj.icao;
 
           flightIdent_Icao = flightIcao;
+          flightDataFa_Id = undefined;
 
           console.log(liveObj);
           console.log("ALT: " + liveObj.altitude);
