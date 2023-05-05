@@ -90,7 +90,6 @@ export class CesiumService {
     this.getAndLoadNoFlyZones();
     // Plots new flight point
     this.flyToAndPlotPoint(longitude, latitude, altitude, flightIdent_Icao, airlineName, flightFaIdRespObj);
-    console.log("------- " + flightFaIdRespObj?.destination.name)
 
   }
 
@@ -542,12 +541,12 @@ export class CesiumService {
                         For Airline: ' + airlineNmVal + '</p><br> Flight location is over ' + response.location
                           + ' <br> Origin Place: ' + flightFaIdRespObj?.origin.name
                           + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
-                          + ' <br> Destination: ' + flightFaIdRespObj?.destination.name
-                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position.groundspeed
-                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position.altitude_change
-                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position.heading
+                          + ' <br> Destination: ' + flightFaIdRespObj?.destination?.name
+                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position?.groundspeed
+                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position?.altitude_change
+                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position?.heading
                           + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
-                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position.timestamp + '</p>'
+                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position?.timestamp + '</p>'
 
                         this.global_viewer.selectedEntity = point;
                         point.billboard = {
@@ -562,12 +561,12 @@ export class CesiumService {
                           'Airline: ' + airlineNmVal
                           + ' <br> Origin Place: ' + flightFaIdRespObj?.origin.name
                           + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
-                          + ' <br> Destination: ' + flightFaIdRespObj?.destination.name
-                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position.groundspeed
-                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position.altitude_change
-                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position.heading
+                          + ' <br> Destination: ' + flightFaIdRespObj?.destination?.name
+                          + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position?.groundspeed
+                          + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position?.altitude_change
+                          + ' <br> Heading: ' + flightFaIdRespObj?.last_position?.heading
                           + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
-                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position.timestamp + '</p>';
+                          + ' <br> Time latest position recieved: ' + flightFaIdRespObj?.last_position?.timestamp + '</p>';
 
                         point.billboard = undefined;
                       }
