@@ -99,7 +99,8 @@ export class CesiumService {
     if (this.global_viewer == null || this.global_viewer == undefined) {
       this.global_viewer = new Cesium.Viewer(div, {
         animation: false,
-        timeline: false
+        timeline: false,
+        
       })
       this.entities = this.global_viewer.entities;
       this.ellipsoids = this.entities.add(new Cesium.Entity());
@@ -134,6 +135,14 @@ export class CesiumService {
   public hideSelected() {
 
     this.global_viewer.selectedEntity.show = !this.global_viewer.selectedEntity.show;
+
+    var parentId = this.global_viewer.selectedEntity.id;
+
+    this.global_viewer.entities.values.forEach((element: any) => {
+      if(element.parent != undefined && element.parent.id == parentId) {
+        element.show = !element.show;
+      }
+    }) 
   }
 
   public resetEntities() {
@@ -258,7 +267,7 @@ export class CesiumService {
 
       }
       let distance = Cesium.Cartesian3.distance(oldAirplane._position._value, view.camera.position);
-      oldAirplane._model._scale._value = distance / (75 + (distance / 10000))
+      oldAirplane._model._scale._value = (distance / (100 + (distance/10000)))
 
     } else { // If this is a new plane, make it
       view.entities.remove(view.entities.getById(name))
@@ -273,7 +282,7 @@ export class CesiumService {
         model: {
           uri: pUri,
 
-          scale: distance / (75 + (distance / 10000)),
+          scale: distance / (100 + (distance / 10000)),
         },
 
       };
@@ -358,7 +367,9 @@ export class CesiumService {
               hierarchy: {
                 positions: Cesium.Cartesian3.fromDegreesArrayHeights([
                   polygonNoFly.vertex1Long, polygonNoFly.vertex1Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex2Long, polygonNoFly.vertex2Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex3Long, polygonNoFly.vertex3Lat, polygonNoFly.maxAltitude, polygonNoFly.vertex4Long, polygonNoFly.vertex4Lat, polygonNoFly.maxAltitude,
-                ]),
+                ]
+                ),
+                
                 //shapeValues: Array ordered: vertex 1 Longitude, vertex 1 Latitude, max height, vertex 2 Longitude, vertex 2 Latitude, max height, ...
               },
               extrudedHeight: polygonNoFly.minAltitude, //int minimum height
@@ -477,6 +488,7 @@ export class CesiumService {
     if (location_has_changed) {
       this.global_viewer.entities.add({
         name: flightIdent_Icao,
+        parent: this.global_viewer.entities.getById("Flight ICAO: " + flightIdent_Icao),
         polyline: {
           positions: Cesium.Cartesian3.fromDegreesArrayHeights(current_coord_arr),
           width: 10,
@@ -489,7 +501,7 @@ export class CesiumService {
       this.makePlane(this.global_viewer, "Flight ICAO: " + flightIdent_Icao, longitude, latitude, altitude).then(wait => {
 
         if (this.aeroFlightFaIdResponse && flightFaIdRespObj != null) {
-          this.httpClient.get<FlightDataIdent>('http://localhost:9091/flightident/' + flightIdent_Icao, this.httpOptions).subscribe(flightResponse => {
+          this.httpClient.get<FlightDataIdent>('http://34.198.166.4/flightident/' + flightIdent_Icao, this.httpOptions).subscribe(flightResponse => {
             this.aeroFlightIdentResponse = flightResponse;
             if (this.aeroFlightIdentResponse) {
               //console.log(this.aeroFlightIdentResponse)
@@ -519,7 +531,7 @@ export class CesiumService {
               //   }
               // }
 
-              this.httpClient.get<Operator>('http://localhost:9091/operator/' + this.aeroFlightIdentResponse.operator, this.httpOptions).subscribe(operatorResponse => {
+              this.httpClient.get<Operator>('http://34.198.166.4/operator/' + this.aeroFlightIdentResponse.operator, this.httpOptions).subscribe(operatorResponse => {
                 this.aeroOperatorResponse = operatorResponse;
                 airlineNmVal = operatorResponse.name;
                 // console.log(operatorResponse)
@@ -543,6 +555,9 @@ export class CesiumService {
                           + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
                           + ' <br> Destination: ' + flightFaIdRespObj?.destination?.name
                           + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position?.groundspeed
+                          + ' <br> Flight Latitude: ' + latitude 
+                          + ' <br> Flight Longitude: ' + longitude 
+                          + ' <br> Flight Altitude: ' + altitude
                           + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position?.altitude_change
                           + ' <br> Heading: ' + flightFaIdRespObj?.last_position?.heading
                           + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
@@ -563,6 +578,9 @@ export class CesiumService {
                           + ' <br> Takeoff Time: ' + flightFaIdRespObj?.actual_off
                           + ' <br> Destination: ' + flightFaIdRespObj?.destination?.name
                           + ' <br> GroundSpeed: ' + flightFaIdRespObj?.last_position?.groundspeed
+                          + ' <br> Flight Latitude: ' + latitude 
+                          + ' <br> Flight Longitude: ' + longitude 
+                          + ' <br> Flight Altitude: ' + altitude
                           + ' <br> Altitude Change: ' + flightFaIdRespObj?.last_position?.altitude_change
                           + ' <br> Heading: ' + flightFaIdRespObj?.last_position?.heading
                           + ' <br> Aircraft Type: ' + flightFaIdRespObj?.aircraft_type
@@ -593,18 +611,20 @@ export class CesiumService {
                 //console.log("CONFLICT RESPONSE STRING: " + conflictResponse);
                 if (data.inConflict) {
                   point.description = '<b>This is a mock generated flight</b><br><p> Flight ICAO: ' + flightIdent_Icao + ' is in no fly zone: ' + data.noFlyZoneName + '<br>\
-                      For Airline: ' + airlineName + '</p><br> Flight location is over ' + response.location;
+                      For Airline: ' + airlineName + '</p><br> Flight location is over ' + response.location + '<br> Flight Latitude: ' + latitude + '<br> Flight Longitude: ' + longitude +
+                      '<br> Flight Altitude: ' + altitude;
                   this.global_viewer.selectedEntity = point;
                   point.billboard = {
                     image: "/assets/images/WarningLabel.png",
                     verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-                    pixelOffset: new Cesium.Cartesian2(0, 25),
+                    pixelOffset: new Cesium.Cartesian2(0, 35),
                     width: 57,
                     height: 15,
                   };
                 } else {
                   point.description = '<b>This is a mock generated flight</b><br><p> Flight ICAO: ' + flightIdent_Icao + ' is over ' + response.location + '<br>' +
-                    'Airline: ' + airlineName;
+                    'Airline: ' + airlineName + '<br> Flight Latitude: ' + latitude + '<br> Flight Longitude: ' + longitude +
+                    '<br> Flight Altitude: ' + altitude;
 
                   point.billboard = undefined;
                 }
