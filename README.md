@@ -25,3 +25,16 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Versions 
+
+Milestone 1: 
+Environment Set up
+Milestone 2:
+Backend Setup/ Initial Angular project generated
+Milestone 3:
+Integration with web sockets and communicating with backend services
+Milestone 4: 
+Continuing to improve UI features and services
+Milestone 5: 
+General code clean up
