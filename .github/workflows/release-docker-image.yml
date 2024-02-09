@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Cache npm dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: '~/.npm'
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -30,7 +30,7 @@ jobs:
             ${{ runner.os }}-node-
         
       - name: Install dependencies
-        run: npm install # or yarn install
+        run: npm install 
 
       - name: Run test and Generate Coverage Report 
         run: npm run coverage || echo "Ignoring test failures; Should be updated in the future"
