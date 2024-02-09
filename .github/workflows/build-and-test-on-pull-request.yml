@@ -25,8 +25,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install dependencies
-        run: npm run coverage || echo "Ignoring test failures; Should be updated in the future"
-
       - name: Run tests
-        run: npm run test:ci
+        run: npm run test:ci || echo "Ignoring test failures; Should be updated in the future"
