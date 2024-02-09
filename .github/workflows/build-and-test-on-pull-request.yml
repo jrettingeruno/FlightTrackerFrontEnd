@@ -21,7 +21,8 @@ jobs:
       - name: Install dependencies
         run: |
           ls
-          npm install # or yarn install
+          pwd
+          # npm install # or yarn install
 
       - name: Run tests 
         run: npm run test:ci
