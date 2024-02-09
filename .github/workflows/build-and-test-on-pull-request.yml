@@ -4,12 +4,17 @@ on:
   pull_request:
     branches: [ "main", "**" ]
 
+  push:
+    branches: [ "main", "**" ]
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Cache npm dependencies
         uses: actions/cache@v2
         with:
@@ -22,7 +27,7 @@ jobs:
         run: |
           ls
           pwd
-          # npm install # or yarn install
+          npm install # or yarn install
 
       - name: Run tests 
         run: npm run test:ci
