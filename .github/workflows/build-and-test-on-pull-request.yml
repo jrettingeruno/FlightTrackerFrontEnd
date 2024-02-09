@@ -19,7 +19,9 @@ jobs:
             ${{ runner.os }}-node-
         
       - name: Install dependencies
-        run: npm install # or yarn install
+        run: |
+          ls
+          npm install # or yarn install
 
       - name: Run tests 
         run: npm run test:ci
